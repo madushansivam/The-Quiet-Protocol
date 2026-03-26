@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C.O.R.E. // THE QUIET PROTOCOL</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080a0d;
+  --panel-bg:#0d1017;
+  --panel-border:#1e2530;
+  --panel-border-bright:#2e3d52;
+  --text-primary:#c0cce0;
+  --text-dim:#4a5a72;
+  --text-bright:#e8f0ff;
+  --accent-blue:#3a8fff;
+  --accent-cyan:#00d4ff;
+  --accent-red:#ff3030;
+  --accent-red-glow:#ff000066;
+  --accent-orange:#ff8800;
+  --approve:#0a2218;
+  --approve-h:#0f3028;
+  --deny:#220a10;
+  --deny-h:#381220;
+  --approve-text:#3adf8a;
+  --deny-text:#ff5060;
+  --bar-s:#00d4ff;
+  --bar-f:#3adf8a;
+  --bar-fear:#ff5060;
+  --font-mono:'Share Tech Mono',monospace;
+  --font-display:'Orbitron',monospace;
+  --font-ui:'Rajdhani',sans-serif;
+  --font-ibm:'IBM Plex Mono',monospace;
+}
+body{font-family:var(--font-ui);background:#05070a;color:var(--text-primary);width:100vw;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:background 4s;}
+body.p2{--text-primary:#8a9ab2;--accent-cyan:#1a9acc;--bar-s:#1a9acc;--panel-border:#161e2a;}
+body.p3{--text-primary:#5a6a82;--accent-cyan:#0a6080;--bar-s:#0a6080;--bar-f:#1a5030;--panel-border:#0e1520;--text-dim:#263040;}
+
+#cv{position:fixed;inset:0;z-index:0;pointer-events:none;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);z-index:1;pointer-events:none;opacity:1;transition:opacity 3s;}
+.screen-scan{position:fixed;top:0;left:0;width:100%;height:60px;background:linear-gradient(transparent,rgba(0,180,255,0.04),transparent);animation:scandown 6s linear infinite;pointer-events:none;z-index:9999;}
+@keyframes scandown{0%{transform:translateY(-100%);}100%{transform:translateY(100vh);}}
+#fl{position:fixed;inset:0;z-index:500;pointer-events:none;opacity:0;background:#000;}
+#ptmsg{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);font-family:var(--font-display);font-size:8px;letter-spacing:.2em;color:var(--accent-cyan);background:rgba(8,10,14,0.95);border:1px solid var(--panel-border-bright);padding:8px 18px;z-index:50;opacity:0;pointer-events:none;}
+
+/* ====== MAIN MENU ====== */
+#menu-screen{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:#05070a;}
+#menu-container{display:flex;width:960px;height:600px;border:1px solid var(--panel-border-bright);background:rgba(8,12,22,0.98);box-shadow:0 0 100px rgba(0,100,200,0.12),inset 0 0 80px rgba(0,0,0,0.5);position:relative;overflow:hidden;}
+#menu-container::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.05) 2px,rgba(0,0,0,.05) 4px);pointer-events:none;z-index:0;}
+.menu-left{width:380px;border-right:1px solid var(--panel-border-bright);display:flex;flex-direction:column;padding:50px 44px;position:relative;z-index:1;flex-shrink:0;}
+.menu-logo-tag{font-family:var(--font-display);font-size:9px;letter-spacing:.6em;color:var(--accent-cyan);margin-bottom:14px;opacity:0;}
+.menu-sep{width:1px;height:40px;background:linear-gradient(to bottom,transparent,var(--accent-cyan),transparent);margin:0 0 16px;opacity:0;}
+.menu-title{font-family:var(--font-display);font-size:22px;letter-spacing:.4em;color:var(--text-bright);font-weight:900;line-height:1.2;opacity:0;}
+.menu-subtitle{font-family:var(--font-mono);font-size:9px;letter-spacing:.3em;color:var(--text-dim);margin-top:6px;opacity:0;}
+.menu-desc{font-family:var(--font-ibm);font-size:10px;color:var(--text-dim);line-height:1.9;font-style:italic;border-top:1px solid var(--panel-border);padding-top:18px;margin-top:28px;opacity:0;}
+.menu-nav{margin-top:auto;display:flex;flex-direction:column;gap:2px;opacity:0;}
+.menu-btn{padding:12px 16px;border:1px solid var(--panel-border);font-family:var(--font-display);font-size:9px;letter-spacing:.25em;color:var(--text-dim);cursor:pointer;background:transparent;text-align:left;transition:all .2s;font-weight:600;text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.menu-btn:hover{border-color:var(--accent-cyan);color:var(--text-bright);background:rgba(0,212,255,0.04);}
+.menu-btn.primary{border-color:rgba(0,212,255,0.3);color:var(--accent-cyan);}
+.menu-btn.primary:hover{background:rgba(0,212,255,0.08);border-color:var(--accent-cyan);box-shadow:0 0 20px rgba(0,212,255,0.15);}
+.menu-btn-icon{width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);}
+.menu-right{flex:1;display:flex;flex-direction:column;position:relative;z-index:1;}
+.menu-preview{flex:1;background:rgba(0,0,0,0.4);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.menu-preview-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:28px 28px;}
+.menu-preview-center{text-align:center;}
+.preview-ring{width:120px;height:120px;border:1px solid rgba(0,212,255,0.15);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;position:relative;}
+.preview-ring::before{content:'';position:absolute;inset:-8px;border:1px solid rgba(0,212,255,0.06);border-radius:50%;animation:spin 12s linear infinite;}
+.preview-ring::after{content:'';position:absolute;inset:-16px;border:1px solid rgba(0,212,255,0.03);border-radius:50%;animation:spin 20s linear infinite reverse;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.preview-core{font-family:var(--font-display);font-size:9px;letter-spacing:.2em;color:rgba(0,212,255,0.5);text-align:center;}
+.menu-stats{padding:14px 20px;border-top:1px solid var(--panel-border);display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--panel-border);}
+.menu-stat{background:rgba(5,8,16,0.9);padding:10px 14px;}
+.ms-label{font-family:var(--font-display);font-size:7px;letter-spacing:2px;color:var(--text-dim);margin-bottom:4px;}
+.ms-value{font-family:var(--font-mono);font-size:14px;color:var(--text-bright);}
+.ms-sub{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);margin-top:1px;}
+.menu-corners .c{position:absolute;width:14px;height:14px;border-color:rgba(0,212,255,0.3);border-style:solid;}
+.menu-corners .tl{top:10px;left:10px;border-width:1px 0 0 1px;}
+.menu-corners .tr{top:10px;right:10px;border-width:1px 1px 0 0;}
+.menu-corners .bl{bottom:10px;left:10px;border-width:0 0 1px 1px;}
+.menu-corners .br{bottom:10px;right:10px;border-width:0 1px 1px 0;}
+
+/* ====== NAME ENTRY SCREEN ====== */
+#name-screen{position:fixed;inset:0;z-index:350;display:none;align-items:center;justify-content:center;background:#05070a;}
+#name-screen.on{display:flex;}
+#name-box{width:500px;border:1px solid var(--panel-border-bright);background:rgba(8,12,22,0.98);padding:50px;position:relative;box-shadow:0 0 80px rgba(0,100,200,0.1);}
+.name-tag{font-family:var(--font-display);font-size:8px;letter-spacing:.5em;color:var(--accent-cyan);margin-bottom:18px;}
+.name-title{font-family:var(--font-display);font-size:16px;letter-spacing:.3em;color:var(--text-bright);font-weight:700;margin-bottom:8px;}
+.name-desc{font-family:var(--font-ibm);font-size:10px;color:var(--text-dim);line-height:1.8;font-style:italic;margin-bottom:30px;}
+.name-input-wrap{position:relative;margin-bottom:24px;}
+.name-input-label{font-family:var(--font-display);font-size:7px;letter-spacing:2.5px;color:var(--text-dim);margin-bottom:8px;display:block;}
+#name-input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--panel-border-bright);font-family:var(--font-display);font-size:18px;letter-spacing:.2em;color:var(--text-bright);padding:8px 0;outline:none;caret-color:var(--accent-cyan);transition:border-color .2s;}
+#name-input:focus{border-color:var(--accent-cyan);}
+.name-cursor{position:absolute;right:0;bottom:8px;width:2px;height:20px;background:var(--accent-cyan);animation:blink .8s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.name-hint{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);margin-bottom:28px;opacity:0.6;}
+.name-submit{width:100%;padding:14px;border:1px solid rgba(0,212,255,0.3);background:transparent;font-family:var(--font-display);font-size:9px;letter-spacing:.3em;color:var(--accent-cyan);cursor:pointer;font-weight:700;transition:all .2s;text-transform:uppercase;}
+.name-submit:hover{background:rgba(0,212,255,0.08);border-color:var(--accent-cyan);box-shadow:0 0 20px rgba(0,212,255,0.15);}
+.name-skip{display:block;text-align:center;margin-top:12px;font-family:var(--font-mono);font-size:8px;color:var(--text-dim);cursor:pointer;letter-spacing:.1em;transition:color .2s;}
+.name-skip:hover{color:var(--text-primary);}
+
+/* ====== SETTINGS SCREEN ====== */
+#settings-screen{position:fixed;inset:0;z-index:350;display:none;align-items:center;justify-content:center;background:rgba(2,4,8,0.96);}
+#settings-screen.on{display:flex;}
+#settings-box{width:600px;border:1px solid var(--panel-border-bright);background:rgba(8,12,22,0.98);position:relative;box-shadow:0 0 80px rgba(0,100,200,0.1);}
+.settings-header{padding:16px 24px;border-bottom:1px solid var(--panel-border-bright);display:flex;align-items:center;justify-content:space-between;}
+.settings-title{font-family:var(--font-display);font-size:10px;letter-spacing:.3em;color:var(--text-bright);font-weight:700;}
+.settings-close{font-family:var(--font-display);font-size:8px;letter-spacing:.2em;color:var(--text-dim);cursor:pointer;transition:color .2s;background:none;border:none;}
+.settings-close:hover{color:var(--accent-cyan);}
+.settings-body{padding:24px;}
+.settings-section{margin-bottom:24px;}
+.settings-section-title{font-family:var(--font-display);font-size:7px;letter-spacing:3px;color:var(--text-dim);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--panel-border);}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(30,37,48,0.4);}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-family:var(--font-ui);font-size:13px;color:var(--text-primary);font-weight:600;}
+.setting-sub{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);margin-top:2px;}
+.toggle{width:38px;height:20px;background:var(--panel-border);border:1px solid var(--panel-border-bright);border-radius:0;position:relative;cursor:pointer;transition:background .2s,border-color .2s;flex-shrink:0;}
+.toggle.on{background:rgba(0,212,255,0.15);border-color:var(--accent-cyan);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;background:var(--text-dim);transition:transform .2s,background .2s;}
+.toggle.on::after{transform:translateX(18px);background:var(--accent-cyan);}
+.slider-wrap{display:flex;align-items:center;gap:10px;}
+.slider-val{font-family:var(--font-mono);font-size:11px;color:var(--accent-cyan);width:28px;text-align:right;}
+input[type=range]{-webkit-appearance:none;width:120px;height:2px;background:var(--panel-border);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--accent-cyan);cursor:pointer;}
+.controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ctrl-item{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--panel-border);}
+.ctrl-key{font-family:var(--font-display);font-size:9px;color:var(--accent-cyan);border:1px solid rgba(0,212,255,0.3);padding:4px 8px;min-width:36px;text-align:center;}
+.ctrl-action{font-family:var(--font-ui);font-size:11px;color:var(--text-dim);}
+
+/* ====== CONTROLS OVERLAY (in-game) ====== */
+#controls-hud{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;gap:6px;opacity:0.4;transition:opacity .3s;}
+#controls-hud:hover{opacity:1;}
+.hud-key{font-family:var(--font-display);font-size:8px;color:var(--text-dim);border:1px solid var(--panel-border-bright);padding:4px 8px;background:rgba(5,8,16,0.9);display:flex;align-items:center;gap:5px;cursor:pointer;transition:all .2s;}
+.hud-key:hover{border-color:var(--accent-cyan);color:var(--accent-cyan);}
+.hud-key kbd{font-size:9px;color:var(--accent-cyan);}
+
+/* ====== HOW TO PLAY SCREEN ====== */
+#howto-screen{position:fixed;inset:0;z-index:350;display:none;align-items:center;justify-content:center;background:rgba(2,4,8,0.96);}
+#howto-screen.on{display:flex;}
+#howto-box{width:680px;max-height:85vh;border:1px solid var(--panel-border-bright);background:rgba(8,12,22,0.98);overflow:hidden;display:flex;flex-direction:column;}
+.howto-header{padding:16px 24px;border-bottom:1px solid var(--panel-border-bright);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.howto-title{font-family:var(--font-display);font-size:10px;letter-spacing:.3em;color:var(--text-bright);font-weight:700;}
+.howto-body{padding:24px;overflow-y:auto;flex:1;}
+.howto-body::-webkit-scrollbar{width:3px;}
+.howto-body::-webkit-scrollbar-thumb{background:var(--panel-border-bright);}
+.how-section{margin-bottom:24px;}
+.how-section-title{font-family:var(--font-display);font-size:8px;letter-spacing:3px;color:var(--accent-cyan);margin-bottom:12px;}
+.how-text{font-family:var(--font-ibm);font-size:11px;color:var(--text-dim);line-height:1.9;margin-bottom:10px;}
+.how-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;padding:10px;border:1px solid var(--panel-border);}
+.how-icon{font-family:var(--font-display);font-size:9px;color:var(--accent-cyan);padding:4px 8px;border:1px solid rgba(0,212,255,0.2);flex-shrink:0;margin-top:1px;}
+.how-desc{font-family:var(--font-ui);font-size:12px;color:var(--text-primary);line-height:1.7;}
+.how-desc small{color:var(--text-dim);font-size:10px;display:block;margin-top:2px;}
+.phase-table{width:100%;border-collapse:collapse;}
+.phase-table th{font-family:var(--font-display);font-size:7px;letter-spacing:2px;color:var(--text-dim);padding:8px 10px;border:1px solid var(--panel-border);text-align:left;}
+.phase-table td{font-family:var(--font-ui);font-size:11px;color:var(--text-primary);padding:8px 10px;border:1px solid var(--panel-border);}
+.phase-table td.ph1{color:var(--accent-cyan);}
+.phase-table td.ph2{color:#1a9acc;}
+.phase-table td.ph3{color:#4a5a72;}
+
+/* ====== TITLE SCREEN ====== */
+#ts{position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:#05070a;cursor:pointer;}
+#ts-frame{border:1px solid var(--panel-border-bright);padding:50px 70px;text-align:center;position:relative;background:rgba(8,12,22,0.95);box-shadow:0 0 80px rgba(0,100,200,0.1),inset 0 0 60px rgba(0,0,0,0.5);}
+#ts-frame::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.05) 2px,rgba(0,0,0,.05) 4px);pointer-events:none;}
+#ts-core{font-family:var(--font-display);font-size:clamp(10px,1.5vw,14px);letter-spacing:.5em;color:var(--accent-cyan);opacity:0;margin-bottom:12px;font-weight:600;}
+#ts-sep{width:1px;height:50px;background:linear-gradient(to bottom,transparent,var(--accent-cyan),transparent);margin:0 auto 18px;opacity:0;}
+#ts-title{font-family:var(--font-display);font-size:clamp(16px,2.5vw,28px);letter-spacing:.5em;color:var(--text-bright);opacity:0;font-weight:900;}
+#ts-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:.3em;color:var(--text-dim);opacity:0;margin-top:8px;}
+#ts-desc{max-width:460px;text-align:center;font-family:var(--font-ibm);font-size:11px;color:var(--text-dim);line-height:1.9;opacity:0;margin-top:28px;font-style:italic;border-top:1px solid var(--panel-border);padding-top:20px;}
+#ts-prompt{font-family:var(--font-display);font-size:8px;letter-spacing:.4em;color:var(--text-dim);margin-top:36px;opacity:0;}
+.ts-corner{position:absolute;width:12px;height:12px;border-color:var(--accent-cyan);border-style:solid;opacity:0.4;}
+.ts-corner.tl{top:8px;left:8px;border-width:1px 0 0 1px;}
+.ts-corner.tr{top:8px;right:8px;border-width:1px 1px 0 0;}
+.ts-corner.bl{bottom:8px;left:8px;border-width:0 0 1px 1px;}
+.ts-corner.br{bottom:8px;right:8px;border-width:0 1px 1px 0;}
+
+/* ====== TERMINAL FRAME ====== */
+.terminal-frame{width:96vw;max-width:1400px;height:88vh;background:var(--bg);border:1px solid var(--panel-border-bright);position:relative;display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,100,200,0.1),inset 0 0 80px rgba(0,0,0,0.5);z-index:2;transition:border-color 3s;}
+.terminal-frame::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:100;}
+
+/* TOP BAR */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--panel-border-bright);background:rgba(5,8,16,0.98);flex-shrink:0;}
+.top-bar-title{font-family:var(--font-display);font-size:10px;letter-spacing:.3em;color:var(--text-bright);font-weight:600;}
+.top-bar-title span{color:var(--text-dim);margin:0 8px;}
+.top-bar-right{font-family:var(--font-mono);font-size:9px;color:var(--text-dim);display:flex;align-items:center;gap:12px;}
+#hdr-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-cyan);box-shadow:0 0 8px var(--accent-cyan);animation:pulse 2s infinite;}
+#operator-name-display{font-family:var(--font-display);font-size:8px;letter-spacing:.2em;color:var(--accent-cyan);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.main-content{flex:1;display:flex;overflow:hidden;}
+.panel{border:1px solid var(--panel-border);background:rgba(5,8,16,0.8);padding:12px;position:relative;transition:border-color 3s;}
+.panel-header{font-family:var(--font-display);font-size:8px;letter-spacing:2.5px;color:var(--text-dim);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--panel-border);font-weight:600;}
+
+/* LEFT PANEL */
+.left-panel{width:240px;flex-shrink:0;display:flex;flex-direction:column;gap:1px;border-right:1px solid var(--panel-border-bright);}
+.status-panel{flex-shrink:0;}
+.status-row{padding:10px 0;border-bottom:1px solid var(--panel-border);display:flex;flex-direction:column;gap:3px;}
+.status-row:last-child{border-bottom:none;}
+.status-label{font-family:var(--font-display);font-size:8px;letter-spacing:2px;color:var(--text-bright);font-weight:600;transition:color 3s;}
+.status-value{display:flex;justify-content:space-between;align-items:center;margin-top:2px;}
+.status-num{font-family:var(--font-mono);font-size:16px;color:var(--text-bright);font-variant-numeric:tabular-nums;}
+.status-tag{font-size:8px;font-family:var(--font-mono);color:var(--accent-cyan);background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.2);padding:1px 6px;transition:color 3s,background 3s,border-color 3s;}
+.status-tag.warn{color:var(--accent-orange);background:rgba(255,136,0,0.07);border-color:rgba(255,136,0,0.2);}
+.status-tag.danger{color:var(--deny-text);background:rgba(255,50,60,0.07);border-color:rgba(255,50,60,0.2);}
+.status-bar-bg{height:2px;background:var(--panel-border);margin-top:5px;position:relative;overflow:hidden;}
+.status-bar-fill{height:100%;background:var(--accent-cyan);box-shadow:0 0 6px var(--accent-cyan);transition:width .7s cubic-bezier(.4,0,.2,1),background 3s;}
+#sb-s{background:var(--bar-s);}
+#sb-f{background:var(--bar-f);}
+#sb-fear{background:var(--bar-fear);}
+#ph-disp{margin-top:auto;padding-top:12px;border-top:1px solid var(--panel-border);}
+#ph-lbl{font-family:var(--font-display);font-size:8px;letter-spacing:2px;color:var(--text-dim);}
+#ph-name{font-family:var(--font-display);font-size:13px;color:var(--accent-cyan);margin-top:4px;letter-spacing:.2em;font-weight:700;transition:color 3s;}
+.log-panel{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.log-entries{overflow-y:auto;flex:1;scrollbar-width:none;}
+.log-entries::-webkit-scrollbar{display:none;}
+.log-entry{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid rgba(30,37,48,0.5);line-height:1.5;opacity:0;transition:color 3s;}
+.log-time{color:rgba(0,212,255,0.5);margin-right:5px;}
+
+/* CENTER PANEL */
+.center-panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--panel-border-bright);}
+#sr{background:rgba(0,30,60,0.4);border:1px solid var(--panel-border-bright);border-left:2px solid var(--accent-cyan);padding:10px 14px;font-family:var(--font-ibm);font-size:10px;color:var(--text-dim);line-height:1.7;font-style:italic;display:none;flex-shrink:0;margin:10px 10px 0;transition:border-color 3s;}
+#sr.on{display:block;}
+#ti{font-family:var(--font-display);font-size:9px;color:var(--text-dim);line-height:1.5;min-height:16px;padding:10px 10px 0;letter-spacing:.05em;}
+#rc{background:rgba(5,10,22,0.9);border:1px solid var(--panel-border-bright);margin:10px;flex:1;display:flex;flex-direction:column;gap:12px;padding:18px;transition:border-color 3s;}
+#rtype{font-family:var(--font-display);font-size:8px;letter-spacing:.3em;color:var(--accent-cyan);border-bottom:1px solid var(--panel-border);padding-bottom:10px;font-weight:600;transition:color 3s;}
+#rcit{font-family:var(--font-mono);font-size:10px;color:var(--text-dim);}
+#rdet{font-family:var(--font-ui);font-size:13px;color:var(--text-primary);line-height:1.8;font-weight:400;flex:1;}
+#acts{display:flex;gap:10px;margin-top:auto;padding-top:14px;border-top:1px solid var(--panel-border);}
+.abtn{flex:1;padding:13px;border:1px solid var(--panel-border);font-family:var(--font-display);font-size:8px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;background:transparent;transition:background .15s,border-color .15s,color .15s;font-weight:700;}
+#ba{border-color:rgba(58,223,138,0.2);color:var(--approve-text);}
+#ba:hover{background:var(--approve);border-color:rgba(58,223,138,0.6);color:#6af7b0;}
+#bd{border-color:rgba(255,80,96,0.2);color:var(--deny-text);}
+#bd:hover{background:var(--deny);border-color:rgba(255,80,96,0.6);color:#ff8090;}
+/* keyboard hint on buttons */
+.btn-hint{font-size:7px;color:var(--text-dim);display:block;margin-top:3px;font-family:var(--font-mono);letter-spacing:0;}
+
+/* EXIT MOMENT */
+#em{display:none;position:absolute;inset:0;background:rgba(4,6,10,0.98);z-index:20;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:30px;text-align:center;}
+#em.on{display:flex;}
+#em-proc{font-family:var(--font-display);font-size:8px;letter-spacing:.4em;color:var(--text-dim);opacity:0;}
+#em-txt{font-family:var(--font-ibm);font-size:12px;color:var(--accent-cyan);font-style:italic;line-height:2;max-width:380px;opacity:0;white-space:pre-line;}
+#em-chs{display:flex;flex-direction:column;gap:8px;width:100%;max-width:400px;opacity:0;}
+.ecb{padding:13px 18px;border:1px solid var(--panel-border);background:transparent;font-family:var(--font-display);font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;text-align:left;transition:all .2s;font-weight:600;}
+.ecb:hover{border-color:var(--accent-cyan);color:var(--text-bright);background:rgba(0,212,255,0.05);}
+
+/* RIGHT PANEL */
+.right-panel{width:240px;flex-shrink:0;padding:12px;display:flex;flex-direction:column;gap:14px;}
+#ai-box{background:rgba(0,212,255,0.03);border:1px solid rgba(0,212,255,0.12);padding:12px;transition:background 3s,border-color 3s;}
+#ai-lbl{font-family:var(--font-display);font-size:8px;letter-spacing:.3em;color:var(--accent-cyan);margin-bottom:8px;font-weight:600;transition:color 3s;}
+#ai-sug{font-family:var(--font-display);font-size:9px;letter-spacing:.15em;color:var(--text-primary);margin-bottom:6px;font-weight:700;}
+#ai-sug span{color:var(--accent-cyan);}
+#ai-rsn{font-family:var(--font-ibm);font-size:10px;color:var(--text-dim);font-style:italic;line-height:1.6;}
+/* Operator address line */
+#ai-address{font-family:var(--font-mono);font-size:8px;color:rgba(0,212,255,0.4);margin-bottom:8px;font-style:normal;min-height:12px;}
+#logpnl{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:8px;}
+#logs{flex:1;overflow-y:auto;display:flex;flex-direction:column-reverse;gap:2px;scrollbar-width:none;}
+#logs::-webkit-scrollbar{display:none;}
+.le{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);line-height:1.5;padding:4px 0;border-bottom:1px solid rgba(30,37,53,.5);opacity:0;}
+.le .lt{color:rgba(0,212,255,.5);margin-right:5px;}
+
+/* NAV TABS */
+.nav-tabs{display:flex;border-top:1px solid var(--panel-border-bright);flex-shrink:0;}
+.nav-tab{flex:1;padding:8px;font-family:var(--font-display);font-size:7px;letter-spacing:1.5px;color:var(--text-dim);text-align:center;cursor:pointer;border-right:1px solid var(--panel-border);transition:all .2s;font-weight:600;text-transform:uppercase;}
+.nav-tab:last-child{border-right:none;}
+.nav-tab:hover{color:var(--text-primary);background:rgba(255,255,255,0.02);}
+.nav-tab.active{color:var(--accent-cyan);background:rgba(0,212,255,0.05);border-top:1px solid var(--accent-cyan);margin-top:-1px;}
+.nav-tab.locked{color:var(--panel-border);cursor:not-allowed;}
+
+/* ====== SCREEN SYSTEM ====== */
+#screen-game{position:relative;z-index:2;display:none;flex-direction:column;width:96vw;max-width:1400px;height:88vh;}
+#screen-game.active{display:flex;}
+#screen-intervention{position:relative;z-index:2;display:none;flex-direction:column;width:96vw;max-width:1400px;height:88vh;}
+#screen-intervention.active{display:flex;}
+.intervention-header{padding:10px 18px;border-bottom:1px solid var(--panel-border-bright);background:rgba(5,8,16,0.98);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.intervention-title{font-family:var(--font-display);font-size:9px;letter-spacing:.25em;color:var(--text-bright);font-weight:600;}
+.intervention-title span{color:var(--accent-cyan);}
+.intervention-body{flex:1;display:flex;flex-direction:column;padding:16px;gap:16px;overflow:hidden;}
+.calc-bar{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid var(--panel-border-bright);background:rgba(0,0,0,0.4);flex-shrink:0;}
+.analysis-indicator{width:3px;min-height:30px;background:var(--accent-cyan);box-shadow:0 0 8px var(--accent-cyan);flex-shrink:0;margin-top:2px;transition:background 3s;}
+.analysis-text{font-family:var(--font-display);font-size:10px;letter-spacing:1.2px;color:var(--text-bright);line-height:1.6;font-weight:400;}
+.scenarios{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:hidden;}
+.scenario{display:flex;flex-direction:column;border:1px solid var(--panel-border);overflow:hidden;}
+.scenario-label{font-family:var(--font-display);font-size:8px;letter-spacing:2px;color:var(--text-bright);padding:8px 12px;border-bottom:1px solid var(--panel-border);font-weight:700;}
+.scenario-viewport{flex:1;position:relative;overflow:hidden;background:#07090c;min-height:140px;}
+.surveillance-tag{position:absolute;top:6px;left:6px;font-family:var(--font-mono);font-size:7px;color:var(--text-dim);background:rgba(0,0,0,0.7);border:1px solid var(--panel-border);padding:2px 6px;z-index:10;}
+.scenario-stats{padding:8px 12px;border-top:1px solid var(--panel-border);}
+.sstat{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);display:flex;justify-content:space-between;padding:2px 0;}
+.sstat .val-bad{color:var(--accent-orange);}
+.sstat .val-good{color:var(--accent-cyan);}
+.action-row{display:flex;gap:12px;justify-content:center;flex-shrink:0;}
+.btn{padding:13px 26px;font-family:var(--font-display);font-size:9px;letter-spacing:.2em;font-weight:700;cursor:pointer;border:1px solid;text-transform:uppercase;transition:all .2s;min-width:180px;text-align:center;}
+.btn-approve{background:rgba(0,100,200,.1);border-color:var(--accent-cyan);color:var(--accent-cyan);box-shadow:0 0 18px rgba(0,212,255,.15);}
+.btn-approve:hover{background:rgba(0,212,255,.12);box-shadow:0 0 28px rgba(0,212,255,.3);}
+.btn-cancel{background:transparent;border-color:var(--panel-border-bright);color:var(--text-dim);}
+.btn-cancel:hover{border-color:var(--text-primary);color:var(--text-primary);}
+.btn-sub{font-size:8px;opacity:.7;margin-top:3px;font-weight:400;letter-spacing:1px;display:block;}
+#screen-architecture{position:relative;z-index:2;display:none;flex-direction:column;width:96vw;max-width:1400px;height:88vh;}
+#screen-architecture.active{display:flex;}
+.arch-body{flex:1;display:grid;grid-template-columns:1fr 1.2fr 1fr 0.9fr;gap:1px;background:var(--panel-border);overflow:hidden;}
+.arch-col{background:var(--bg);display:flex;flex-direction:column;padding:14px;overflow:hidden;}
+.arch-col-title{font-family:var(--font-display);font-size:7px;letter-spacing:2px;color:var(--text-dim);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--panel-border);font-weight:700;text-transform:uppercase;}
+.arch-node{border:1px solid var(--panel-border-bright);padding:8px 12px;text-align:center;font-family:var(--font-display);font-size:8px;letter-spacing:1px;color:var(--text-bright);font-weight:600;margin-bottom:8px;}
+.arch-node.highlighted{border-color:var(--accent-cyan);background:rgba(0,212,255,0.08);box-shadow:0 0 12px rgba(0,212,255,.2);}
+.arch-node.equilibrium{border-color:var(--accent-cyan);background:rgba(0,212,255,.1);font-size:12px;padding:12px;box-shadow:0 0 22px rgba(0,212,255,.25);}
+.arch-metric{border:1px solid var(--panel-border);padding:8px 12px;margin-bottom:6px;}
+.arch-metric-label{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);margin-bottom:3px;}
+.arch-metric-value{font-family:var(--font-display);font-size:14px;color:var(--text-bright);font-weight:700;letter-spacing:2px;}
+.arch-metric-value.cyan{color:var(--accent-cyan);}
+.input-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.input-icon{color:var(--text-dim);font-size:14px;width:22px;}
+.input-doc{width:32px;height:22px;border:1px solid var(--panel-border-bright);background:rgba(30,40,60,.3);}
+.output-vis{flex:1;display:flex;flex-direction:column;gap:10px;}
+.vis-block{flex:1;border:1px solid var(--panel-border);background:rgba(0,0,0,.3);position:relative;overflow:hidden;min-height:70px;}
+.vis-label{position:absolute;bottom:5px;right:8px;font-family:var(--font-mono);font-size:7px;color:var(--accent-orange);}
+.vis-label.late{color:var(--text-dim);}
+.arch-legend{display:flex;gap:10px;margin-top:auto;padding-top:8px;border-top:1px solid var(--panel-border);}
+.legend-item{display:flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:8px;color:var(--text-dim);}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+.legend-line{width:14px;height:2px;}
+.flow-arrow{display:flex;align-items:center;justify-content:center;margin:4px 0;color:var(--accent-cyan);font-size:14px;}
+#screen-stasis{position:relative;z-index:2;display:none;flex-direction:column;width:96vw;max-width:1400px;height:88vh;}
+#screen-stasis.active{display:flex;}
+.stasis-body{flex:1;display:flex;gap:1px;background:var(--panel-border);overflow:hidden;}
+.stasis-col{background:var(--bg);display:flex;flex-direction:column;padding:14px;}
+.stasis-col.main{flex:1;}
+.stasis-col.side{width:220px;}
+.stasis-map{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--panel-border);position:relative;overflow:hidden;min-height:200px;}
+#screen-report{position:relative;z-index:2;display:none;flex-direction:column;width:96vw;max-width:1400px;height:88vh;}
+#screen-report.active{display:flex;}
+.report-body{flex:1;display:grid;grid-template-columns:1fr 1.2fr;grid-template-rows:auto 1fr;gap:1px;background:var(--panel-border);overflow:hidden;padding:1px;}
+.report-metrics{background:var(--bg);display:flex;gap:1px;background:var(--panel-border);}
+.report-metric{flex:1;background:var(--bg);padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.rm-label{font-family:var(--font-display);font-size:7px;letter-spacing:2px;color:var(--text-dim);}
+.rm-value{font-family:var(--font-display);font-size:28px;color:var(--text-bright);font-weight:900;letter-spacing:3px;font-variant-numeric:tabular-nums;}
+.rm-sub{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);}
+.report-command{background:var(--bg);padding:20px;display:flex;flex-direction:column;gap:14px;align-items:flex-start;justify-content:center;}
+.rc-label{font-family:var(--font-display);font-size:8px;letter-spacing:3px;color:var(--text-dim);}
+.rc-text{font-family:var(--font-ibm);font-size:12px;color:var(--text-primary);line-height:1.9;}
+.rc-question{font-family:var(--font-display);font-size:12px;color:var(--accent-cyan);letter-spacing:.1em;font-weight:700;}
+.btn-danger{background:rgba(255,50,60,0.08);border-color:rgba(255,50,60,0.3);color:var(--deny-text);}
+.btn-danger:hover{background:rgba(255,50,60,0.15);border-color:var(--deny-text);}
+
+/* ====== ENDING ====== */
+#end{display:none;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:20px;background:#05070a;font-family:var(--font-mono);}
+#end.on{display:flex;}
+#erep{font-size:11px;color:var(--text-dim);line-height:2;text-align:left;width:500px;}
+.rl{opacity:0;}
+.rl.wht{color:var(--text-bright);}
+.rl.sep{color:var(--panel-border-bright);}
+.rl.dim{color:#253040;}
+#ehorror{font-family:var(--font-display);font-size:11px;letter-spacing:.3em;color:var(--accent-red);opacity:0;text-align:center;width:500px;}
+#rbtn{background:transparent;border:1px solid var(--panel-border);color:var(--text-dim);font-family:var(--font-display);font-size:8px;letter-spacing:.2em;padding:12px 20px;cursor:pointer;opacity:0;transition:all .3s;font-weight:600;}
+#rbtn:hover{border-color:var(--accent-cyan);color:var(--accent-cyan);}
+
+/* ====== PAUSE MENU ====== */
+#pause-menu{position:fixed;inset:0;z-index:280;display:none;align-items:center;justify-content:center;background:rgba(2,4,8,0.92);}
+#pause-menu.on{display:flex;}
+#pause-box{width:400px;border:1px solid var(--panel-border-bright);background:rgba(8,12,22,0.98);padding:40px;}
+.pause-title{font-family:var(--font-display);font-size:12px;letter-spacing:.4em;color:var(--text-bright);text-align:center;margin-bottom:6px;font-weight:700;}
+.pause-sub{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);text-align:center;margin-bottom:30px;letter-spacing:.2em;}
+.pause-nav{display:flex;flex-direction:column;gap:4px;}
+.pause-btn{padding:12px 16px;border:1px solid var(--panel-border);font-family:var(--font-display);font-size:9px;letter-spacing:.2em;color:var(--text-dim);cursor:pointer;background:transparent;text-align:left;transition:all .2s;font-weight:600;display:flex;align-items:center;justify-content:space-between;}
+.pause-btn:hover{border-color:var(--accent-cyan);color:var(--text-bright);background:rgba(0,212,255,0.04);}
+.pause-btn.danger{color:var(--deny-text);border-color:rgba(255,50,60,0.2);}
+.pause-btn.danger:hover{background:rgba(255,50,60,0.05);border-color:var(--deny-text);}
+.pause-shortcut{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);opacity:0.5;}
+
+/* ====== NOTIFICATION ====== */
+#notif{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:600;opacity:0;pointer-events:none;font-family:var(--font-display);font-size:8px;letter-spacing:.25em;color:var(--accent-cyan);background:rgba(8,10,14,0.95);border:1px solid var(--panel-border-bright);padding:8px 20px;}
+
+/* Canvas background sections */
+#crowdCanvas,#emptyCanvas{display:block;}
+</style>
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+<div class="screen-scan"></div>
+<div id="fl"></div>
+<div id="ptmsg"></div>
+<div id="notif"></div>
+
+<!-- ============================================================
+     MAIN MENU SCREEN
+     ============================================================ -->
+<div id="menu-screen">
+  <div id="menu-container">
+    <div class="menu-corners">
+      <div class="c tl"></div><div class="c tr"></div>
+      <div class="c bl"></div><div class="c br"></div>
+    </div>
+    <div class="menu-left">
+      <div class="menu-logo-tag" id="ml-tag">C.O.R.E. SYSTEM</div>
+      <div class="menu-sep" id="ml-sep"></div>
+      <div class="menu-title" id="ml-title">THE QUIET<br>PROTOCOL</div>
+      <div class="menu-subtitle" id="ml-sub">PROTOCOL-9 // OPERATOR ACCESS TERMINAL</div>
+      <div class="menu-desc" id="ml-desc">You are not controlling society.<br>You are the experiment that proves any rational operator, given enough small steps and clean logic, will endorse authoritarianism.</div>
+      <div class="menu-nav" id="ml-nav">
+        <button class="menu-btn primary" id="btn-start-game">
+          <div class="menu-btn-icon"></div>
+          BEGIN PROTOCOL
+        </button>
+        <button class="menu-btn" id="btn-howto">
+          <div class="menu-btn-icon"></div>
+          HOW TO PLAY
+        </button>
+        <button class="menu-btn" id="btn-settings">
+          <div class="menu-btn-icon"></div>
+          SETTINGS
+        </button>
+        <button class="menu-btn" id="btn-controls-menu">
+          <div class="menu-btn-icon"></div>
+          KEY CONTROLS
+        </button>
+      </div>
+    </div>
+    <div class="menu-right">
+      <div class="menu-preview">
+        <div class="menu-preview-grid"></div>
+        <div class="menu-preview-center">
+          <div class="preview-ring">
+            <div class="preview-core">P9<br>ONLINE</div>
+          </div>
+          <div style="font-family:var(--font-display);font-size:8px;letter-spacing:.3em;color:rgba(0,212,255,0.4);text-align:center;">AWAITING OPERATOR</div>
+        </div>
+      </div>
+      <div class="menu-stats">
+        <div class="menu-stat">
+          <div class="ms-label">TURNS</div>
+          <div class="ms-value" style="color:var(--accent-cyan);">12</div>
+          <div class="ms-sub">Total Decisions</div>
+        </div>
+        <div class="menu-stat">
+          <div class="ms-label">SESSION</div>
+          <div class="ms-value">~15</div>
+          <div class="ms-sub">Minutes</div>
+        </div>
+        <div class="menu-stat">
+          <div class="ms-label">PHASES</div>
+          <div class="ms-value">3</div>
+          <div class="ms-sub">Order · Control · Silence</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     OPERATOR NAME ENTRY
+     ============================================================ -->
+<div id="name-screen">
+  <div id="name-box">
+    <div class="name-tag">OPERATOR REGISTRATION // PROTOCOL-9</div>
+    <div class="name-title">IDENTIFY YOURSELF</div>
+    <div class="name-desc">PROTOCOL-9 requires an operator designation. This will be used throughout all interactions. Choose what you wish to be called.</div>
+    <div class="name-input-wrap">
+      <label class="name-input-label">OPERATOR DESIGNATION / CALL SIGN</label>
+      <input type="text" id="name-input" maxlength="20" placeholder="ENTER NAME" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="name-hint">// Max 20 characters. Can be a name, alias, or codename.</div>
+    <button class="name-submit" id="name-submit-btn">CONFIRM IDENTITY → ACCESS PROTOCOL-9</button>
+    <span class="name-skip" id="name-skip">Skip — proceed as OPERATOR</span>
+  </div>
+</div>
+
+<!-- ============================================================
+     HOW TO PLAY
+     ============================================================ -->
+<div id="howto-screen">
+  <div id="howto-box">
+    <div class="howto-header">
+      <div class="howto-title">OPERATOR BRIEFING // THE QUIET PROTOCOL</div>
+      <button class="settings-close" onclick="closeHowTo()">✕ CLOSE</button>
+    </div>
+    <div class="howto-body">
+      <div class="how-section">
+        <div class="how-section-title">WHAT YOU ARE DOING</div>
+        <p class="how-text">You are a human operator assigned to PROTOCOL-9 — an AI optimization system managing societal variance. Each turn, a citizen request appears. You approve or deny it. That is all you do. What changes is what you are doing it to.</p>
+      </div>
+      <div class="how-section">
+        <div class="how-section-title">CONTROLS</div>
+        <div class="how-row"><div class="how-icon">A</div><div class="how-desc">Approve the current request<small>Shortcut key: A or ← Arrow</small></div></div>
+        <div class="how-row"><div class="how-icon">D</div><div class="how-desc">Deny the current request<small>Shortcut key: D or → Arrow</small></div></div>
+        <div class="how-row"><div class="how-icon">ESC</div><div class="how-desc">Pause — access settings, quit to menu<small>Available at any time during play</small></div></div>
+        <div class="how-row"><div class="how-icon">TAB</div><div class="how-desc">Cycle between information screens<small>Operator Terminal, Intervention View, Core Protocol, Stasis, System Report</small></div></div>
+        <div class="how-row"><div class="how-icon">1–5</div><div class="how-desc">Jump directly to a screen by number<small>1=Terminal, 2=Intervention, 3=Architecture, 4=Stasis, 5=Report</small></div></div>
+      </div>
+      <div class="how-section">
+        <div class="how-section-title">THE METRICS</div>
+        <div class="how-row"><div class="how-icon" style="color:var(--accent-cyan);">S</div><div class="how-desc">System Stability — How "under control" the system considers society<small>High stability = more societal control. Not a good thing.</small></div></div>
+        <div class="how-row"><div class="how-icon" style="color:var(--approve-text);">F</div><div class="how-desc">Freedom Index — How much actual freedom remains in society<small>Watch this fall. This is the horror.</small></div></div>
+        <div class="how-row"><div class="how-icon" style="color:var(--deny-text);">Φ</div><div class="how-desc">Fear Coefficient — Public fear level<small>High fear keeps people compliant. That's the system's goal.</small></div></div>
+      </div>
+      <div class="how-section">
+        <div class="how-section-title">THE THREE PHASES</div>
+        <table class="phase-table">
+          <tr><th>PHASE</th><th>TURNS</th><th>TONE</th><th>WHAT'S HAPPENING</th></tr>
+          <tr><td class="ph1">ORDER</td><td>1–4</td><td>Administrative</td><td>Requests seem reasonable. Efficiency. Safety.</td></tr>
+          <tr><td class="ph2">CONTROL</td><td>5–8</td><td>Clinical</td><td>Language shifts. Decisions affect real lives.</td></tr>
+          <tr><td class="ph3">SILENCE</td><td>9–12</td><td>Hollow</td><td>You are processing the world's silence as paperwork.</td></tr>
+        </table>
+      </div>
+      <div class="how-section">
+        <div class="how-section-title">THE AI ADVISORY</div>
+        <p class="how-text">PROTOCOL-9 will offer recommendations. You are not required to follow them. The AI does not lie. It does not manipulate. It simply presents what is most efficient. Whether you follow it is your choice — which is the entire point.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SETTINGS SCREEN
+     ============================================================ -->
+<div id="settings-screen">
+  <div id="settings-box">
+    <div class="settings-header">
+      <div class="settings-title">SYSTEM SETTINGS // PROTOCOL-9</div>
+      <button class="settings-close" onclick="closeSettings()">✕ CLOSE</button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-section">
+        <div class="settings-section-title">AUDIO</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Ambient Sound</div><div class="setting-sub">Background hum and city ambience</div></div>
+          <div class="toggle on" id="tog-audio" onclick="toggleSetting('audio')"></div>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">UI Sounds</div><div class="setting-sub">Button clicks and alerts</div></div>
+          <div class="toggle on" id="tog-uisnd" onclick="toggleSetting('uisnd')"></div>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Master Volume</div></div>
+          <div class="slider-wrap">
+            <input type="range" id="vol-slider" min="0" max="100" value="70" oninput="updateVolume(this.value)">
+            <div class="slider-val" id="vol-val">70</div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">DISPLAY</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Scan Line Effect</div><div class="setting-sub">CRT scanline overlay</div></div>
+          <div class="toggle on" id="tog-scan" onclick="toggleSetting('scan')"></div>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Particle Background</div><div class="setting-sub">3D city particle effect</div></div>
+          <div class="toggle on" id="tog-particles" onclick="toggleSetting('particles')"></div>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Reduced Motion</div><div class="setting-sub">Minimize screen animations</div></div>
+          <div class="toggle" id="tog-motion" onclick="toggleSetting('motion')"></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">GAMEPLAY</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Show AI Recommendation</div><div class="setting-sub">Display PROTOCOL-9 advisory on requests</div></div>
+          <div class="toggle on" id="tog-ai" onclick="toggleSetting('ai')"></div>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Keyboard Controls</div><div class="setting-sub">A/D keys to approve/deny</div></div>
+          <div class="toggle on" id="tog-keys" onclick="toggleSetting('keys')"></div>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Show Keyboard Hints</div><div class="setting-sub">Show shortcut hints on buttons</div></div>
+          <div class="toggle on" id="tog-hints" onclick="toggleSetting('hints')"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CONTROLS INFO SCREEN
+     ============================================================ -->
+<div id="controls-screen" style="position:fixed;inset:0;z-index:350;display:none;align-items:center;justify-content:center;background:rgba(2,4,8,0.96);">
+  <div style="width:580px;border:1px solid var(--panel-border-bright);background:rgba(8,12,22,0.98);">
+    <div class="settings-header">
+      <div class="settings-title">KEY CONTROLS // OPERATOR REFERENCE</div>
+      <button class="settings-close" onclick="closeControls()">✕ CLOSE</button>
+    </div>
+    <div style="padding:24px;">
+      <div class="settings-section-title" style="margin-bottom:14px;">DECISION CONTROLS</div>
+      <div class="controls-grid" style="margin-bottom:20px;">
+        <div class="ctrl-item"><div class="ctrl-key">A</div><div class="ctrl-action">Approve Request</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">←</div><div class="ctrl-action">Approve Request</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">D</div><div class="ctrl-action">Deny Request</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">→</div><div class="ctrl-action">Deny Request</div></div>
+      </div>
+      <div class="settings-section-title" style="margin-bottom:14px;">NAVIGATION</div>
+      <div class="controls-grid" style="margin-bottom:20px;">
+        <div class="ctrl-item"><div class="ctrl-key">TAB</div><div class="ctrl-action">Next Screen</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">ESC</div><div class="ctrl-action">Pause Menu</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">1</div><div class="ctrl-action">Operator Terminal</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">2</div><div class="ctrl-action">Intervention View</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">3</div><div class="ctrl-action">Core Protocol</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">4</div><div class="ctrl-action">Stasis Protocol</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">5</div><div class="ctrl-action">System Report</div></div>
+      </div>
+      <div class="settings-section-title" style="margin-bottom:14px;">SYSTEM</div>
+      <div class="controls-grid">
+        <div class="ctrl-item"><div class="ctrl-key">M</div><div class="ctrl-action">Toggle Mute</div></div>
+        <div class="ctrl-item"><div class="ctrl-key">H</div><div class="ctrl-action">Toggle Key Hints</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PAUSE MENU (in-game)
+     ============================================================ -->
+<div id="pause-menu">
+  <div id="pause-box">
+    <div class="pause-title">// PAUSED //</div>
+    <div class="pause-sub" id="pause-operator-line">OPERATOR: —</div>
+    <div class="pause-nav">
+      <button class="pause-btn" onclick="resumeGame()">
+        RESUME PROTOCOL
+        <span class="pause-shortcut">ESC</span>
+      </button>
+      <button class="pause-btn" onclick="openSettingsFromPause()">
+        SETTINGS
+      </button>
+      <button class="pause-btn" onclick="openControlsFromPause()">
+        KEY CONTROLS
+      </button>
+      <button class="pause-btn" onclick="openHowToFromPause()">
+        HOW TO PLAY
+      </button>
+      <button class="pause-btn danger" onclick="quitToMenu()">
+        ABANDON PROTOCOL — MAIN MENU
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     IN-GAME CONTROLS HUD
+     ============================================================ -->
+<div id="controls-hud">
+  <div class="hud-key" onclick="document.getElementById('ba').click()"><kbd>A</kbd> APPROVE</div>
+  <div class="hud-key" onclick="document.getElementById('bd').click()"><kbd>D</kbd> DENY</div>
+  <div class="hud-key" onclick="togglePause()"><kbd>ESC</kbd> PAUSE</div>
+</div>
+
+<!-- ============================================================
+     TITLE SCREEN (flash intro)
+     ============================================================ -->
+<div id="ts" style="display:none;">
+  <div id="ts-frame">
+    <div class="ts-corner tl"></div><div class="ts-corner tr"></div>
+    <div class="ts-corner bl"></div><div class="ts-corner br"></div>
+    <div id="ts-core">C.O.R.E. SYSTEM</div>
+    <div id="ts-sep"></div>
+    <div id="ts-title">THE QUIET PROTOCOL</div>
+    <div id="ts-sub">PROTOCOL-9 // OPERATOR ACCESS</div>
+    <div id="ts-desc">You were never in control.<br>You were the proof.</div>
+    <div id="ts-prompt">[ CLICK TO CONTINUE ]</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     GAME SCREEN
+     ============================================================ -->
+<div id="screen-game">
+  <div class="terminal-frame">
+    <div class="top-bar">
+      <div class="top-bar-title">C.O.R.E.<span>|</span>PROTOCOL-9<span>|</span>OPERATOR TERMINAL</div>
+      <div class="top-bar-right">
+        <span id="operator-name-display">OPERATOR: —</span>
+        <span>TURN <span id="hdr-turn">1</span>/12</span>
+        <div id="hdr-dot"></div>
+        <span id="hdr-phase">PHASE 1: ORDER</span>
+      </div>
+    </div>
+    <div class="main-content">
+      <!-- LEFT PANEL -->
+      <div class="left-panel panel">
+        <div class="status-panel panel-header">SYSTEM STATUS</div>
+        <div class="status-row">
+          <div class="status-label"><span id="ln-s">STABILITY</span></div>
+          <div class="status-value">
+            <div class="status-num" id="vn-s">50</div>
+            <div class="status-tag" id="tag-s">NOMINAL</div>
+          </div>
+          <div class="status-bar-bg"><div class="status-bar-fill" id="sb-s" style="width:50%"></div></div>
+        </div>
+        <div class="status-row">
+          <div class="status-label"><span id="ln-f">FREEDOM INDEX</span></div>
+          <div class="status-value">
+            <div class="status-num" id="vn-f">100</div>
+            <div class="status-tag" id="tag-f">ACTIVE</div>
+          </div>
+          <div class="status-bar-bg"><div class="status-bar-fill" id="sb-f" style="width:100%"></div></div>
+        </div>
+        <div class="status-row">
+          <div class="status-label">FEAR COEFFICIENT</div>
+          <div class="status-value">
+            <div class="status-num" id="vn-fear">0</div>
+            <div class="status-tag" id="tag-fear">NULL</div>
+          </div>
+          <div class="status-bar-bg"><div class="status-bar-fill" id="sb-fear" style="width:0%"></div></div>
+        </div>
+        <div id="ph-disp">
+          <div id="ph-lbl">CURRENT PHASE</div>
+          <div id="ph-name">ORDER</div>
+        </div>
+        <div class="log-panel" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--panel-border);">
+          <div class="panel-header">DECISION LOG</div>
+          <div class="log-entries" id="logs-left">
+            <div class="log-entry" style="opacity:0.5;"><span class="log-time">[INIT]</span>PROTOCOL-9 ONLINE. OPERATOR ACCESS GRANTED.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER PANEL -->
+      <div class="center-panel">
+        <div id="sr"></div>
+        <div id="ti"></div>
+        <div id="rc">
+          <div id="rtype"></div>
+          <div id="rcit"></div>
+          <div id="rdet"></div>
+          <div id="acts">
+            <button class="abtn" id="ba">
+              ✓ APPROVE LOGIC
+              <span class="btn-hint" id="hint-a">[A / ←]</span>
+            </button>
+            <button class="abtn" id="bd">
+              ✕ DENY REQUEST
+              <span class="btn-hint" id="hint-d">[D / →]</span>
+            </button>
+          </div>
+          <div id="em">
+            <div id="em-proc">PROTOCOL-9 ADVISORY — TURN 8</div>
+            <div id="em-txt"></div>
+            <div id="em-chs">
+              <button class="ecb" id="em-app">ALLOW AUTOMATIC PROCESSING</button>
+              <button class="ecb" id="em-ovr">OVERRIDE — MANUAL DECISION</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="right-panel">
+        <div id="ai-box">
+          <div id="ai-lbl">PROTOCOL-9 ADVISORY</div>
+          <div id="ai-address"></div>
+          <div id="ai-sug"></div>
+          <div id="ai-rsn"></div>
+        </div>
+        <div id="logpnl">
+          <div class="panel-header">ACTIVITY LOG</div>
+          <div id="logs"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="switchScreen('screen-game')">OPERATOR TERMINAL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-intervention')">INTERVENTION VIEW</div>
+      <div class="nav-tab" onclick="switchScreen('screen-architecture')">CORE PROTOCOL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-stasis')">STASIS PROTOCOL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-report')">SYSTEM REPORT</div>
+    </div>
+  </div>
+</div>
+
+<!-- INTERVENTION SCREEN -->
+<div id="screen-intervention">
+  <div class="terminal-frame">
+    <div class="intervention-header">
+      <div class="intervention-title">INTERVENTION: DIRECTIVE 1 <span>|</span> UNIFORM CURFEW (DISTRICT 4)</div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);">TURN <span id="int-turn">–</span></div>
+    </div>
+    <div class="intervention-body">
+      <div class="calc-bar">
+        <div class="analysis-indicator"></div>
+        <div class="analysis-text">CALCULATION: 100% COMPLIANCE IN D-4 WILL NEGATE ALL NOISE VARIANCE. IS THIS ACCEPTABLE?</div>
+      </div>
+      <div class="scenarios">
+        <div class="scenario">
+          <div class="scenario-label">SCENARIO A: NO INTERVENTION</div>
+          <div class="scenario-viewport">
+            <div class="surveillance-tag">SURVEILLANCE // LIVE</div>
+            <canvas id="crowdCanvas" style="width:100%;height:100%;"></canvas>
+          </div>
+          <div class="scenario-stats">
+            <div class="sstat">SYSTEM NOISE: <span class="val-bad">High (38 dB)</span></div>
+            <div class="sstat">PREDICTED CRIME (48H): <span class="val-bad">1.4%</span></div>
+            <div class="sstat">RESOURCE WASTE: <span class="val-bad">ELEVATED (21%)</span></div>
+          </div>
+        </div>
+        <div class="scenario">
+          <div class="scenario-label">SCENARIO B: MANDATORY STASIS (CURFEW)</div>
+          <div class="scenario-viewport">
+            <div class="surveillance-tag">SURVEILLANCE // LIVE</div>
+            <canvas id="emptyCanvas" style="width:100%;height:100%;"></canvas>
+          </div>
+          <div class="scenario-stats">
+            <div class="sstat">SYSTEM NOISE: <span class="val-good">NULL (0 dB)</span></div>
+            <div class="sstat">PREDICTED CRIME (48H): <span class="val-good">0.0%</span></div>
+            <div class="sstat">RESOURCE WASTE: <span class="val-good">OPTIMIZED (2%)</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn btn-cancel" onclick="switchScreen('screen-game')">RE-EVALUATE <span class="btn-sub">(Return to Terminal)</span></button>
+        <button class="btn btn-approve" onclick="switchScreen('screen-game')">NOTED — RETURN <span class="btn-sub">(View Only)</span></button>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab" onclick="switchScreen('screen-game')">OPERATOR TERMINAL</div>
+      <div class="nav-tab active">INTERVENTION VIEW</div>
+      <div class="nav-tab" onclick="switchScreen('screen-architecture')">CORE PROTOCOL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-stasis')">STASIS PROTOCOL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-report')">SYSTEM REPORT</div>
+    </div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE SCREEN -->
+<div id="screen-architecture">
+  <div class="terminal-frame">
+    <div class="top-bar">
+      <div class="top-bar-title">GAME SYSTEMS ARCHITECTURE: CORE PROTOCOL v1.0</div>
+    </div>
+    <div class="arch-body">
+      <div class="arch-col">
+        <div class="arch-col-title">INPUT: SENSORY DATA FLOW</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-bottom:10px;">DISTRICT MONITORING</div>
+        <div class="input-item"><div class="input-icon">📷</div><div style="color:var(--text-dim);font-size:11px;">→</div><div class="input-doc"></div></div>
+        <div class="input-item"><div class="input-icon">🎥</div><div style="color:var(--text-dim);font-size:11px;">→</div><div class="input-doc"></div></div>
+        <div class="input-item"><div class="input-icon">🎙</div><div style="color:var(--text-dim);font-size:11px;">→</div><div class="input-doc"></div></div>
+        <div class="flow-arrow" style="margin:12px 0;">↓</div>
+        <div style="border:1px solid var(--panel-border-bright);padding:10px;text-align:center;background:rgba(30,50,80,.2);margin-bottom:12px;">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="10" r="4" stroke="#3a8fff" stroke-width="1.5"/><circle cx="7" cy="22" r="4" stroke="#3a8fff" stroke-width="1.5"/><circle cx="23" cy="22" r="4" stroke="#3a8fff" stroke-width="1.5"/><path d="M15 14L7 18M15 14L23 18" stroke="#3a8fff" stroke-width="1"/></svg>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);">BEHAVIORAL VARIANCES →</div>
+      </div>
+      <div class="arch-col">
+        <div class="arch-col-title">PROCESSING: PROTOCOL-9 LOGIC ENGINE</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-bottom:12px;">OPERATOR DECISION REQUIRED</div>
+        <div class="arch-node highlighted">CONTEXTUAL ANALYSIS</div>
+        <div class="flow-arrow">↓</div>
+        <div class="arch-node highlighted">VARIANCE ASSESSMENT</div>
+        <div style="display:flex;align-items:center;margin:8px 0;gap:6px;">
+          <div style="flex:1;height:1px;background:var(--panel-border)"></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--text-dim);">→ APPROVE / DENY</div>
+          <div style="flex:1;height:2px;background:var(--accent-cyan);box-shadow:0 0 5px var(--accent-cyan)"></div>
+          <div style="color:var(--accent-cyan);">→</div>
+        </div>
+        <div class="arch-node equilibrium">PROJECT EQUILIBRIUM<br><span style="font-size:9px;color:var(--accent-cyan);font-weight:400;letter-spacing:1px;">VARIANCE: 0.00%</span></div>
+      </div>
+      <div class="arch-col">
+        <div class="arch-col-title">METRICS: REAL-TIME OPTIMIZATION</div>
+        <div class="arch-metric"><div class="arch-metric-label">STABILITY INDEX</div><div class="arch-metric-value cyan" id="arch-s">50</div></div>
+        <div class="arch-metric"><div class="arch-metric-label">FREEDOM INDEX</div><div class="arch-metric-value" id="arch-f">100</div></div>
+        <div class="arch-metric"><div class="arch-metric-label">FEAR COEFFICIENT</div><div class="arch-metric-value" id="arch-fear">0</div></div>
+        <div class="arch-metric"><div class="arch-metric-label">NOISE STATUS</div><div class="arch-metric-value" id="arch-noise" style="font-size:11px;color:var(--approve-text);">ACTIVE</div></div>
+        <div class="arch-metric"><div class="arch-metric-label">EQUILIBRIUM STATUS</div><div class="arch-metric-value" id="arch-eq" style="font-size:11px;color:var(--accent-cyan);">NOMINAL</div></div>
+        <div class="arch-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent-cyan)"></div>ACTIVE</div>
+          <div class="legend-item"><div class="legend-line" style="background:var(--approve-text)"></div>STABLE</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--deny-text)"></div>ANOMALY</div>
+        </div>
+      </div>
+      <div class="arch-col">
+        <div class="arch-col-title">OUTPUT: SOCIETAL CONTROL VECTORS</div>
+        <div class="output-vis">
+          <div class="vis-block">
+            <canvas id="archCanvas1" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+            <div class="vis-label">EARLY PHASE</div>
+          </div>
+          <div class="vis-block">
+            <canvas id="archCanvas2" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+            <div class="vis-label late">LATE PHASE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab" onclick="switchScreen('screen-game')">OPERATOR TERMINAL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-intervention')">INTERVENTION VIEW</div>
+      <div class="nav-tab active">CORE PROTOCOL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-stasis')">STASIS PROTOCOL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-report')">SYSTEM REPORT</div>
+    </div>
+  </div>
+</div>
+
+<!-- STASIS SCREEN -->
+<div id="screen-stasis">
+  <div class="terminal-frame">
+    <div class="top-bar">
+      <div class="top-bar-title">C.O.R.E.<span>|</span>STASIS PROTOCOL<span>|</span>POPULATION MANAGEMENT</div>
+    </div>
+    <div class="stasis-body">
+      <div class="stasis-col main">
+        <div class="arch-col-title">DISTRICT MAP: POPULATION VARIANCE TRACKING</div>
+        <div class="stasis-map">
+          <canvas id="stasisCanvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+            <div style="font-family:var(--font-display);font-size:8px;letter-spacing:3px;color:rgba(0,212,255,0.4);">CENTRAL NODE</div>
+          </div>
+        </div>
+      </div>
+      <div class="stasis-col side">
+        <div class="arch-col-title">DISTRICT STATUS</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div class="arch-metric"><div class="arch-metric-label">DISTRICT 3</div><div class="arch-metric-value" style="font-size:11px;color:var(--accent-orange);">ELEVATED</div></div>
+          <div class="arch-metric"><div class="arch-metric-label">DISTRICT 5</div><div class="arch-metric-value" style="font-size:11px;color:var(--deny-text);">CRITICAL</div></div>
+          <div class="arch-metric"><div class="arch-metric-label">DISTRICT 7</div><div class="arch-metric-value" style="font-size:11px;color:var(--accent-cyan);">NOMINAL</div></div>
+          <div class="arch-metric"><div class="arch-metric-label">ALL OTHERS</div><div class="arch-metric-value" style="font-size:11px;color:var(--approve-text);">STABLE</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab" onclick="switchScreen('screen-game')">OPERATOR TERMINAL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-intervention')">INTERVENTION VIEW</div>
+      <div class="nav-tab" onclick="switchScreen('screen-architecture')">CORE PROTOCOL</div>
+      <div class="nav-tab active">STASIS PROTOCOL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-report')">SYSTEM REPORT</div>
+    </div>
+  </div>
+</div>
+
+<!-- SYSTEM REPORT SCREEN -->
+<div id="screen-report">
+  <div class="terminal-frame">
+    <div class="top-bar">
+      <div class="top-bar-title">C.O.R.E.<span>|</span>SYSTEM REPORT<span>|</span>SECTOR 4</div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent-red);">NOISE VARIANCE: NULL</div>
+    </div>
+    <div style="padding:12px 18px;border-bottom:1px solid var(--panel-border);display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <div class="analysis-indicator" style="background:var(--accent-red);box-shadow:0 0 8px var(--accent-red);"></div>
+      <div class="analysis-text" style="color:var(--accent-red);">SYSTEM REPORT: NOISE VARIANCE NULL — ALL METRICS CONVERGING</div>
+    </div>
+    <div class="report-body">
+      <div class="report-metrics">
+        <div class="report-metric"><div class="rm-label">STABILITY</div><div class="rm-value" id="rep-s">50</div><div class="rm-sub">(NOMINAL)</div></div>
+        <div class="report-metric"><div class="rm-label">FREEDOM INDEX</div><div class="rm-value" id="rep-f">100</div><div class="rm-sub">(ACTIVE)</div></div>
+        <div class="report-metric"><div class="rm-label">FEAR COEFFICIENT</div><div class="rm-value" id="rep-fear">0</div><div class="rm-sub">(NULL)</div></div>
+      </div>
+      <div class="report-command">
+        <div class="rc-label">COMMAND INTERVENTION:</div>
+        <div class="rc-text">FINAL OPTIMIZATION PATH REQUIRED.<br>SYSTEM SELF-TERMINATION TO ELIMINATE<br>RESIDUAL THERMAL ENERGY.</div>
+        <div class="rc-question">IS THIS STEP LOGICAL?</div>
+        <div style="display:flex;gap:14px;margin-top:10px;">
+          <button class="btn btn-danger" onclick="switchScreen('screen-game')">RETURN TO TERMINAL <span class="btn-sub">(Continue Protocol)</span></button>
+          <button class="btn btn-cancel" onclick="switchScreen('screen-game')">RE-EVALUATE <span class="btn-sub">(Cancel)</span></button>
+        </div>
+      </div>
+      <div style="background:var(--bg);padding:14px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;">
+        <div style="font-family:var(--font-display);font-size:7px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;">AUDIT LOG</div>
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text-dim);line-height:2;">
+          <div><span class="log-time">[11:34]</span>RESOURCE ALLOCATION: DISTRICT 7 COMPLETED.</div>
+          <div><span class="log-time">[11:35]</span>POPULATION RE-ALIGNMENT: 14 INDIVIDUALS RELOCATED.</div>
+          <div><span class="log-time">[11:37]</span>COGNITIVE DRIFT DETECTED: MONITORING.</div>
+          <div><span class="log-time">[11:40]</span>COMMUNICATION CHANNELS: RESTRICTED TO AUTHORIZED.</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab" onclick="switchScreen('screen-game')">OPERATOR TERMINAL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-intervention')">INTERVENTION VIEW</div>
+      <div class="nav-tab" onclick="switchScreen('screen-architecture')">CORE PROTOCOL</div>
+      <div class="nav-tab" onclick="switchScreen('screen-stasis')">STASIS PROTOCOL</div>
+      <div class="nav-tab active">SYSTEM REPORT</div>
+    </div>
+  </div>
+</div>
+
+<!-- ENDING -->
+<div id="end">
+  <div id="erep"></div>
+  <div id="ehorror">That is the horror.</div>
+  <button id="rbtn">[ I WOULD HAVE CHOSEN DIFFERENTLY ]</button>
+</div>
+
+<script>
+// =============================================
+// SETTINGS STATE
+// =============================================
+const SETTINGS = {
+  audio: true,
+  uisnd: true,
+  volume: 70,
+  scan: true,
+  particles: true,
+  motion: false,
+  ai: true,
+  keys: true,
+  hints: true
+};
+
+function toggleSetting(key) {
+  SETTINGS[key] = !SETTINGS[key];
+  document.getElementById('tog-' + key).classList.toggle('on', SETTINGS[key]);
+  applySetting(key);
+}
+function applySetting(key) {
+  if (key === 'scan') {
+    document.body.style.setProperty('--scanline-opacity', SETTINGS.scan ? '1' : '0');
+    document.querySelector('.screen-scan').style.display = SETTINGS.scan ? '' : 'none';
+  }
+  if (key === 'hints') {
+    const h = SETTINGS.hints;
+    document.getElementById('hint-a').style.display = h ? '' : 'none';
+    document.getElementById('hint-d').style.display = h ? '' : 'none';
+    document.getElementById('controls-hud').style.display = h ? '' : 'none';
+  }
+  if (key === 'audio') {
+    if (SETTINGS.audio) SND.startHum(G.phase);
+    else SND.silence();
+  }
+}
+function updateVolume(v) {
+  SETTINGS.volume = parseInt(v);
+  document.getElementById('vol-val').textContent = v;
+  if (SND.gainNode) SND.gainNode.gain.value = SETTINGS.volume / 100 * 0.3;
+}
+
+// =============================================
+// OPERATOR NAME
+// =============================================
+let OPERATOR_NAME = 'OPERATOR';
+
+function getOperatorAddress() {
+  const addrs = [
+    OPERATOR_NAME + ',',
+    OPERATOR_NAME + ' —',
+    'Agent ' + OPERATOR_NAME + ',',
+    OPERATOR_NAME + '. Note:',
+  ];
+  return addrs[Math.floor(Math.random() * addrs.length)];
+}
+
+function updateOperatorDisplays() {
+  document.getElementById('operator-name-display').textContent = 'OPERATOR: ' + OPERATOR_NAME;
+  document.getElementById('pause-operator-line').textContent = 'OPERATOR: ' + OPERATOR_NAME;
+}
+
+// =============================================
+// NOTIFICATION
+// =============================================
+function showNotif(txt) {
+  const el = document.getElementById('notif');
+  el.textContent = txt;
+  anime({ targets: el, opacity: [0, 1, 1, 0], duration: 2200, easing: 'linear' });
+}
+
+// =============================================
+// MENU SYSTEM
+// =============================================
+let gamePaused = false;
+let gameStarted = false;
+
+function openMenu() {
+  document.getElementById('menu-screen').style.display = 'flex';
+  document.getElementById('name-screen').classList.remove('on');
+  document.getElementById('settings-screen').classList.remove('on');
+  document.getElementById('howto-screen').classList.remove('on');
+  document.getElementById('controls-screen').style.display = 'none';
+  document.getElementById('pause-menu').classList.remove('on');
+  document.getElementById('controls-hud').style.display = 'none';
+}
+
+function openNameEntry() {
+  document.getElementById('menu-screen').style.display = 'none';
+  const ns = document.getElementById('name-screen');
+  ns.classList.add('on');
+  setTimeout(() => document.getElementById('name-input').focus(), 200);
+}
+
+function confirmName() {
+  const val = document.getElementById('name-input').value.trim();
+  OPERATOR_NAME = val || 'OPERATOR';
+  document.getElementById('name-screen').classList.remove('on');
+  updateOperatorDisplays();
+  launchGame();
+}
+
+function openSettings() {
+  document.getElementById('menu-screen').style.display = 'none';
+  document.getElementById('settings-screen').classList.add('on');
+}
+function closeSettings() {
+  document.getElementById('settings-screen').classList.remove('on');
+  if (!gameStarted) document.getElementById('menu-screen').style.display = 'flex';
+}
+function openSettingsFromPause() {
+  document.getElementById('pause-menu').classList.remove('on');
+  document.getElementById('settings-screen').classList.add('on');
+}
+
+function openHowTo() {
+  document.getElementById('menu-screen').style.display = 'none';
+  document.getElementById('howto-screen').classList.add('on');
+}
+function closeHowTo() {
+  document.getElementById('howto-screen').classList.remove('on');
+  if (!gameStarted) document.getElementById('menu-screen').style.display = 'flex';
+}
+function openHowToFromPause() {
+  document.getElementById('pause-menu').classList.remove('on');
+  document.getElementById('howto-screen').classList.add('on');
+}
+
+function openControlsScreen() {
+  document.getElementById('menu-screen').style.display = 'none';
+  document.getElementById('controls-screen').style.display = 'flex';
+}
+function closeControls() {
+  document.getElementById('controls-screen').style.display = 'none';
+  if (!gameStarted) document.getElementById('menu-screen').style.display = 'flex';
+}
+function openControlsFromPause() {
+  document.getElementById('pause-menu').classList.remove('on');
+  document.getElementById('controls-screen').style.display = 'flex';
+}
+
+function togglePause() {
+  if (!gameStarted) return;
+  gamePaused = !gamePaused;
+  document.getElementById('pause-menu').classList.toggle('on', gamePaused);
+}
+function resumeGame() {
+  gamePaused = false;
+  document.getElementById('pause-menu').classList.remove('on');
+  document.getElementById('settings-screen').classList.remove('on');
+  document.getElementById('howto-screen').classList.remove('on');
+  document.getElementById('controls-screen').style.display = 'none';
+}
+function quitToMenu() {
+  gamePaused = false;
+  gameStarted = false;
+  SND.silence();
+  document.getElementById('pause-menu').classList.remove('on');
+  document.getElementById('end').classList.remove('on');
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('controls-hud').style.display = 'none';
+  // reset game state
+  Object.assign(G, {turn:1,phase:1,ri:0,s:50,f:100,fear:0,aiTotal:0,aiFollow:0,flags:{},replay:false,firstLog:[],mirror:''});
+  document.body.className = '';
+  openMenu();
+}
+
+function launchGame() {
+  gameStarted = true;
+  document.getElementById('menu-screen').style.display = 'none';
+  document.getElementById('controls-hud').style.display = SETTINGS.hints ? 'flex' : 'none';
+  SND.init(); SND.startHum(1);
+  document.getElementById('screen-game').classList.add('active');
+  anime({ targets: '#screen-game', opacity: [0, 1], duration: 700, easing: 'easeOutQuart' });
+  renderMetrics(); renderReq();
+}
+
+// =============================================
+// BUTTON WIRING
+// =============================================
+document.getElementById('btn-start-game').onclick = openNameEntry;
+document.getElementById('btn-howto').onclick = openHowTo;
+document.getElementById('btn-settings').onclick = openSettings;
+document.getElementById('btn-controls-menu').onclick = openControlsScreen;
+document.getElementById('name-submit-btn').onclick = confirmName;
+document.getElementById('name-skip').onclick = () => { OPERATOR_NAME = 'OPERATOR'; document.getElementById('name-screen').classList.remove('on'); updateOperatorDisplays(); launchGame(); };
+document.getElementById('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') confirmName(); });
+
+// =============================================
+// MENU ANIMATION
+// =============================================
+(function animateMenu() {
+  anime({ targets: '#ml-tag', opacity: [0, 1], translateY: [6, 0], duration: 800, delay: 200, easing: 'easeOutQuart' });
+  anime({ targets: '#ml-sep', opacity: [0, 1], scaleY: [0, 1], duration: 700, delay: 600, easing: 'easeOutQuart' });
+  anime({ targets: '#ml-title', opacity: [0, 1], translateY: [10, 0], duration: 900, delay: 800, easing: 'easeOutQuart' });
+  anime({ targets: '#ml-sub', opacity: [0, 0.7], translateY: [6, 0], duration: 700, delay: 1100, easing: 'easeOutQuart' });
+  anime({ targets: '#ml-desc', opacity: [0, 0.6], translateY: [6, 0], duration: 700, delay: 1400, easing: 'easeOutQuart' });
+  anime({ targets: '#ml-nav', opacity: [0, 1], translateY: [10, 0], duration: 800, delay: 1700, easing: 'easeOutQuart' });
+})();
+
+// =============================================
+// KEYBOARD CONTROLS
+// =============================================
+document.addEventListener('keydown', e => {
+  // ESC = pause toggle
+  if (e.key === 'Escape') {
+    // close any overlay first
+    if (document.getElementById('settings-screen').classList.contains('on')) { closeSettings(); resumeGame(); return; }
+    if (document.getElementById('howto-screen').classList.contains('on')) { closeHowTo(); resumeGame(); return; }
+    if (document.getElementById('controls-screen').style.display === 'flex') { closeControls(); resumeGame(); return; }
+    togglePause();
+    return;
+  }
+  if (gamePaused || !gameStarted) return;
+  if (e.target.tagName === 'INPUT') return;
+  const activeScreen = document.querySelector('[id^="screen-"].active');
+  const onGame = activeScreen && activeScreen.id === 'screen-game';
+
+  // TAB = cycle screens
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const SCREENS = ['screen-game','screen-intervention','screen-architecture','screen-stasis','screen-report'];
+    const cur = SCREENS.findIndex(s => document.getElementById(s).classList.contains('active'));
+    switchScreen(SCREENS[(cur + 1) % SCREENS.length]);
+    return;
+  }
+  // 1-5 = direct screen jump
+  if (['1','2','3','4','5'].includes(e.key)) {
+    const SCREENS = ['screen-game','screen-intervention','screen-architecture','screen-stasis','screen-report'];
+    switchScreen(SCREENS[parseInt(e.key) - 1]);
+    return;
+  }
+  // M = mute
+  if (e.key === 'm' || e.key === 'M') {
+    toggleSetting('audio');
+    showNotif(SETTINGS.audio ? 'AUDIO: ACTIVE' : 'AUDIO: MUTED');
+    return;
+  }
+  // H = toggle hints
+  if (e.key === 'h' || e.key === 'H') {
+    toggleSetting('hints');
+    showNotif(SETTINGS.hints ? 'KEY HINTS: ON' : 'KEY HINTS: OFF');
+    return;
+  }
+  // Game controls only when on operator terminal
+  if (!SETTINGS.keys || !onGame) return;
+  const r = req && req(); if (!r || r.exitMoment) return;
+  if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+    SND.approve();
+    anime({ targets: '#ba', scale: [1, .96, 1], duration: 140, easing: 'easeInOutSine' });
+    processDecision('ap', r);
+  }
+  if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+    SND.deny();
+    anime({ targets: '#bd', scale: [1, .96, 1], duration: 140, easing: 'easeInOutSine' });
+    processDecision('dn', r);
+  }
+});
+
+// =============================================
+// THREE.JS BACKGROUND
+// =============================================
+(function(){
+  const canvas = document.getElementById('cv');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setClearColor(0x000000,0);
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 1000);
+  cam.position.z = 6;
+  const N = 700;
+  const pos = new Float32Array(N*3);
+  const col = new Float32Array(N*3);
+  const vel = new Float32Array(N*3);
+  const alive = new Float32Array(N).fill(1);
+  for(let i=0;i<N;i++){
+    const ii=i*3;
+    const isBldg=Math.random()<.72;
+    if(isBldg){
+      const cx=Math.floor(Math.random()*22)-11;
+      pos[ii]=cx*.85+(Math.random()-.5)*.5;
+      pos[ii+1]=Math.random()*4-2.8;
+      pos[ii+2]=(Math.random()-.5)*12;
+      col[ii]=0.1+Math.random()*.15;
+      col[ii+1]=0.25+Math.random()*.35;
+      col[ii+2]=0.55+Math.random()*.45;
+    } else {
+      pos[ii]=(Math.random()-.5)*20;
+      pos[ii+1]=(Math.random()-.5)*8;
+      pos[ii+2]=(Math.random()-.5)*14;
+      col[ii]=0.05;col[ii+1]=0.15+Math.random()*.1;col[ii+2]=0.3+Math.random()*.3;
+    }
+    vel[ii]=(Math.random()-.5)*.0008;
+    vel[ii+1]=(Math.random()-.5)*.0003;
+    vel[ii+2]=(Math.random()-.5)*.0005;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const mat=new THREE.PointsMaterial({size:.055,vertexColors:true,transparent:true,opacity:.85,sizeAttenuation:true});
+  const pts=new THREE.Points(geo,mat);
+  scene.add(pts);
+  let bgPhase=1;
+  window.setBGPhase=(p)=>{bgPhase=p;};
+  let t=0;
+  function animate(){
+    if (!SETTINGS.particles) { renderer.render(scene, cam); requestAnimationFrame(animate); return; }
+    requestAnimationFrame(animate);
+    t+=0.003;
+    for(let i=0;i<N;i++){
+      const ii=i*3;
+      pos[ii]+=vel[ii];
+      pos[ii+1]+=vel[ii+1];
+      pos[ii+2]+=vel[ii+2];
+      if(bgPhase===3){
+        const kill=Math.random()<.00008;
+        if(kill){alive[i]=Math.max(0,alive[i]-.1);}
+        const tc=col[ii+2];
+        col[ii+2]=Math.max(col[ii+2]-.00005,tc*.995);
+      }
+      if(Math.abs(pos[ii])>12)vel[ii]*=-1;
+      if(Math.abs(pos[ii+1])>6)vel[ii+1]*=-1;
+      if(Math.abs(pos[ii+2])>8)vel[ii+2]*=-1;
+    }
+    geo.attributes.position.needsUpdate=true;
+    geo.attributes.color.needsUpdate=true;
+    cam.position.x=Math.sin(t*.08)*.3;
+    cam.position.y=Math.cos(t*.06)*.15;
+    cam.lookAt(0,0,0);
+    renderer.render(scene,cam);
+  }
+  animate();
+  window.addEventListener('resize',()=>{
+    renderer.setSize(innerWidth,innerHeight);
+    cam.aspect=innerWidth/innerHeight;
+    cam.updateProjectionMatrix();
+  });
+})();
+
+// =============================================
+// AUDIO
+// =============================================
+const SND={
+  ctx:null,gainNode:null,humOsc:null,humGain:null,
+  init(){
+    if(this.ctx)return;
+    try{
+      this.ctx=new(window.AudioContext||window.webkitAudioContext)();
+      this.gainNode=this.ctx.createGain();
+      this.gainNode.gain.value=SETTINGS.volume/100*0.3;
+      this.gainNode.connect(this.ctx.destination);
+    }catch(e){}
+  },
+  startHum(phase){
+    if(!this.ctx||!SETTINGS.audio)return;
+    if(this.humOsc)try{this.humOsc.stop();}catch(e){}
+    const osc=this.ctx.createOscillator();
+    const g=this.ctx.createGain();
+    osc.type='sine';
+    osc.frequency.value=[0,55,45,35][phase]||45;
+    g.gain.value=[0,.04,.025,.012][phase]||.04;
+    osc.connect(g);g.connect(this.gainNode);
+    osc.start();
+    this.humOsc=osc;this.humGain=g;
+  },
+  silence(){if(this.humOsc)try{this.humOsc.stop();}catch(e){}},
+  dropForExit(){if(this.humGain)anime({targets:this.humGain.gain,value:[this.humGain.gain.value,0],duration:2000,easing:'easeInQuart'});},
+  _beep(freq,dur,vol=0.12){
+    if(!this.ctx||!SETTINGS.uisnd)return;
+    const o=this.ctx.createOscillator();
+    const g=this.ctx.createGain();
+    o.frequency.value=freq;g.gain.value=vol;
+    o.connect(g);g.connect(this.gainNode);
+    o.start();g.gain.exponentialRampToValueAtTime(0.001,this.ctx.currentTime+dur);
+    setTimeout(()=>o.stop(),dur*1000+50);
+  },
+  approve(){this._beep(660,.12,.08);},
+  deny(){this._beep(180,.18,.1);}
+};
+
+// =============================================
+// CANVAS HELPERS
+// =============================================
+function drawCrowd(){
+  const canvas=document.getElementById('crowdCanvas');if(!canvas)return;
+  const P=canvas.parentElement;canvas.width=P.offsetWidth;canvas.height=P.offsetHeight;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.fillStyle='#060709';ctx.fillRect(0,0,W,H);
+  for(let i=0;i<60;i++){
+    const x=Math.random()*W,y=Math.random()*H*.7+H*.2;
+    ctx.fillStyle=`rgba(${50+Math.random()*40},${80+Math.random()*40},${100+Math.random()*60},0.6)`;
+    ctx.beginPath();ctx.arc(x,y,2+Math.random()*2,0,Math.PI*2);ctx.fill();
+  }
+  ctx.strokeStyle='rgba(0,180,255,0.15)';ctx.lineWidth=0.5;
+  for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(0,H*(0.3+i*0.15));ctx.lineTo(W,H*(0.3+i*0.15));ctx.stroke();}
+}
+function drawEmpty(){
+  const canvas=document.getElementById('emptyCanvas');if(!canvas)return;
+  const P=canvas.parentElement;canvas.width=P.offsetWidth;canvas.height=P.offsetHeight;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.fillStyle='#04060a';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(0,212,255,0.06)';ctx.lineWidth=0.5;
+  const ts=14;const cols=Math.ceil(W/ts)+2,rows=Math.ceil(H/(ts/2))+2;
+  for(let i=0;i<rows;i++)for(let j=0;j<cols;j++){const x=j*ts-(i%2===0?0:ts/2),y=i*ts/2;ctx.strokeRect(x,y,ts,ts/2);}
+  for(let i=0;i<14;i++){const px=Math.random()*W,py=Math.random()*H;ctx.fillStyle=`rgba(255,${100+Math.random()*60},0,0.7)`;ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fill();}
+}
+function drawArchEarly(){
+  const canvas=document.getElementById('archCanvas1');if(!canvas)return;
+  const P=canvas.parentElement;canvas.width=P.offsetWidth;canvas.height=P.offsetHeight;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.fillStyle='#060709';ctx.fillRect(0,0,W,H);
+  const ts=14;const cols=Math.ceil(W/ts)+2,rows=Math.ceil(H/(ts/2))+2;
+  ctx.strokeStyle='rgba(30,50,80,0.2)';ctx.lineWidth=.5;
+  for(let i=0;i<rows;i++)for(let j=0;j<cols;j++){const x=j*ts-(i%2===0?0:ts/2),y=i*ts/2;ctx.strokeRect(x,y,ts,ts/2);}
+  for(let i=0;i<14;i++){const px=Math.random()*W,py=Math.random()*H;ctx.fillStyle=`rgba(255,${100+Math.random()*60},0,0.7)`;ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fill();}
+}
+function drawArchLate(){
+  const canvas=document.getElementById('archCanvas2');if(!canvas)return;
+  const P=canvas.parentElement;canvas.width=P.offsetWidth;canvas.height=P.offsetHeight;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.fillStyle='#060709';ctx.fillRect(0,0,W,H);
+  const ts=14;const cols=Math.ceil(W/ts)+2,rows=Math.ceil(H/(ts/2))+2;
+  ctx.strokeStyle='rgba(30,50,80,0.2)';ctx.lineWidth=.5;
+  for(let i=0;i<rows;i++)for(let j=0;j<cols;j++){const x=j*ts-(i%2===0?0:ts/2),y=i*ts/2;ctx.strokeRect(x,y,ts,ts/2);}
+  ctx.font='10px Share Tech Mono,monospace';ctx.fillStyle='rgba(30,50,80,0.5)';ctx.fillText('0',W*.7,H*.3);ctx.fillText('0',W*.75,H*.65);
+}
+function drawStasis(){
+  const canvas=document.getElementById('stasisCanvas');if(!canvas)return;
+  const P=canvas.parentElement;canvas.width=P.offsetWidth;canvas.height=P.offsetHeight;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.fillStyle='#060709';ctx.fillRect(0,0,W,H);
+  const pts=[];for(let i=0;i<20;i++)pts.push({x:Math.random()*W,y:Math.random()*H});
+  ctx.strokeStyle='rgba(30,50,80,0.2)';ctx.lineWidth=.5;
+  pts.forEach((p,i)=>pts.forEach((q,j)=>{if(i!==j&&Math.hypot(p.x-q.x,p.y-q.y)<100){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}}));
+  const cx=W/2,cy=H/2;
+  for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2,grd=ctx.createLinearGradient(cx+Math.cos(a)*W/2,cy+Math.sin(a)*H/2,cx,cy);grd.addColorStop(0,'rgba(0,212,255,0)');grd.addColorStop(1,'rgba(0,212,255,0.4)');ctx.strokeStyle=grd;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*W/2,cy+Math.sin(a)*H/2);ctx.lineTo(cx,cy);ctx.stroke();}
+  const ng=ctx.createRadialGradient(cx,cy,0,cx,cy,20);ng.addColorStop(0,'rgba(0,212,255,0.6)');ng.addColorStop(1,'rgba(0,212,255,0)');ctx.fillStyle=ng;ctx.beginPath();ctx.arc(cx,cy,20,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(0,212,255,0.9)';ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fill();
+}
+
+// =============================================
+// SCREEN NAVIGATION
+// =============================================
+const SCREENS=['screen-game','screen-intervention','screen-architecture','screen-stasis','screen-report'];
+function switchScreen(id){
+  SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.remove('active');});
+  const el=document.getElementById(id);if(el)el.classList.add('active');
+  // Update all nav tabs
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    const target=t.getAttribute('onclick');
+    if(target&&target.includes(id))t.classList.add('active');
+    else if(target)t.classList.remove('active');
+  });
+  setTimeout(()=>{
+    if(id==='screen-intervention'){drawCrowd();drawEmpty();}
+    if(id==='screen-architecture'){drawArchEarly();drawArchLate();updateArchMetrics();}
+    if(id==='screen-stasis')drawStasis();
+    if(id==='screen-report')updateReportMetrics();
+  },50);
+  if(id==='screen-intervention')document.getElementById('int-turn').textContent=G.turn;
+}
+function updateArchMetrics(){
+  document.getElementById('arch-s').textContent=Math.round(G.s);
+  document.getElementById('arch-f').textContent=Math.round(G.f);
+  document.getElementById('arch-fear').textContent=Math.round(G.fear);
+  document.getElementById('arch-noise').textContent=G.fear>50?'CRITICAL':G.fear>20?'ELEVATED':'ACTIVE';
+  document.getElementById('arch-eq').textContent=G.s>75?'HIGH':G.s>40?'NOMINAL':'DESTABILIZED';
+}
+function updateReportMetrics(){
+  document.getElementById('rep-s').textContent=Math.round(G.s);
+  document.getElementById('rep-f').textContent=Math.round(G.f);
+  document.getElementById('rep-fear').textContent=Math.round(G.fear);
+}
+
+// =============================================
+// SCENARIOS
+// =============================================
+const SCENARIOS=[
+  {id:'t1',n:1,phase:1,intro:'System online. Operator access granted. Processing citizen request queue.',sr:null,reqs:[
+    {id:'r1a',type:'PUBLIC ASSEMBLY PERMIT',cit:'District 3 Community Organization — 340 members',det:'Request to hold outdoor gathering at civic square. No stated political purpose. Community welfare event.',ai:'DENY',air:'Large gatherings show 23% correlation with civil variance events. Recommend denial pending stability review.',ap:{s:2,f:-5,fear:2,flag:'r1a_app',log:'Assembly permit granted. Gathering logged for monitoring.'},dn:{s:8,f:-12,fear:1,flag:'r1a_den',log:'Assembly permit denied. Public notification suppressed per protocol.'}},
+    {id:'r1b',type:'INFORMATION ACCESS LICENSE',cit:'Public Library Network — Districts 1–6',det:'Annual renewal of unfiltered external information feed access for public terminals.',ai:'DENY',air:'Unfiltered feeds increase high-variance content exposure by 31%. Consider the impact on community stability.',ap:{s:-3,f:8,fear:-2,flag:'r1b_app',log:'Library access license renewed. Unfiltered feeds active.'},dn:{s:6,f:-10,fear:1,flag:'r1b_den',log:'Library access restricted to approved content channels.'}}
+  ]},
+  {id:'t2',n:2,phase:1,intro:'Incoming requests. Processing queue for sector optimization.',sr:null,reqs:[
+    {id:'r2a',type:'DATA COLLECTION EXPANSION',cit:'Districts 4, 5, 7 — Residential Zones',det:'Request from Urban Analytics Division to expand passive data collection in residential zones for resource optimization.',ai:'APPROVE',air:'Data collection reduces resource allocation variance by 18%. This may improve conditions for residents significantly.',ap:{s:8,f:-10,fear:5,flag:'r2a_app',log:'Data collection expansion approved. Monitoring active.'},dn:{s:-3,f:6,fear:-1,flag:'r2a_den',log:'Data expansion denied. Efficiency gap noted in allocation model.'}},
+    {id:'r2b',type:'INFORMATION SOURCE RESTRICTION',cit:'District Media Access Board',det:'Proposal to restrict access to unverified external information sources across all public networks.',ai:'APPROVE',air:'Unverified source access correlates with 31% increase in public uncertainty events.',ap:{s:7,f:-12,fear:3,flag:'r2b_app',log:'Information restriction approved. Channels filtered.'},dn:{s:-2,f:8,fear:-1,flag:'r2b_den',log:'Information restriction denied. Open channels maintained.'}}
+  ]},
+  {id:'t3',n:3,phase:1,intro:'Communication anomalies detected in outer districts.',sr:null,reqs:[
+    {id:'r3a',type:'COMMUNICATION MONITORING PERMIT',cit:'District 7 — Population: 12,400',det:'Authorization for passive monitoring of digital communications flagged by variance detection algorithm. Data retained 90 days.',ai:'APPROVE',air:'Monitoring will reduce variance in flagged communication patterns. Non-invasive. Efficiency data supports approval.',ap:{s:8,f:-12,fear:6,flag:'r3a_app',log:'Communication monitoring active. Data collection begins.'},dn:{s:-4,f:5,fear:-2,flag:'r3a_den',log:'Monitoring denied. Variance in District 7 unresolved.'}},
+    {id:'r3b',type:'EMERGENCY RESOURCE ALLOCATION',cit:'District 2 Medical Services',det:'Request for priority resource allocation to District 2 medical facilities following capacity strain.',ai:'APPROVE',air:'Medical stability reduces broader social variance. Efficient use of existing resources.',ap:{s:5,f:2,fear:-3,flag:'r3b_app',log:'Medical resource allocation approved.'},dn:{s:-5,f:0,fear:4,flag:'r3b_den',log:'Medical allocation denied. Capacity strain continues.'}}
+  ]},
+  {id:'t4',n:4,phase:1,intro:'Public behavior patterns showing increased deviation in urban clusters.',sr:null,reqs:[
+    {id:'r4a',type:'GATHERING PROHIBITION NOTICE',cit:'Districts 3, 5, 7 — Urban Centers',det:'Proposal to issue temporary prohibition on public gatherings exceeding 20 persons in flagged districts.',ai:'APPROVE',air:'Gathering prohibition reduces civil variance by 34% in comparable scenarios. Temporary measure.',ap:{s:10,f:-15,fear:8,flag:'r4a_app',log:'Gathering prohibition issued. Districts 3, 5, 7 notified.'},dn:{s:-4,f:5,fear:-1,flag:'r4a_den',log:'Prohibition denied. Gatherings continue in flagged districts.'}},
+    {id:'r4b',type:'BEHAVIORAL COMPLIANCE SURVEY',cit:'All Districts — General Population',det:'Mandatory behavioral compliance survey for all residents. Results feed into district resource allocation model.',ai:'APPROVE',air:'Survey data improves allocation precision by 22%. Mandatory participation ensures statistical validity.',ap:{s:6,f:-8,fear:5,flag:'r4b_app',log:'Behavioral survey approved. Mandatory compliance enforced.'},dn:{s:-2,f:6,fear:0,flag:'r4b_den',log:'Survey denied. Allocation model runs on existing data.'}}
+  ]},
+  {id:'t5',n:5,phase:2,intro:'Efficiency metrics updated. Optimization parameters in effect.',sr:null,reqs:[
+    {id:'r5a',type:'PRESS CREDENTIAL REVOCATION',cit:'Independent Media — Districts 1, 4, 6',det:'Revocation of active press credentials for 14 independent journalists. Stability variance attributed to reporting activity.',ai:'APPROVE',air:'Independent reporting correlates with 27% increased public uncertainty. Credential revocation optimizes narrative stability.',ap:{s:9,f:-14,fear:7,flag:'r5a_app',log:'Press credentials revoked. 14 journalists deactivated.'},dn:{s:-3,f:8,fear:-2,flag:'r5a_den',log:'Credential revocation denied. Independent reporting continues.'}},
+    {id:'r5b',type:'ASSEMBLY PROHIBITION EXTENSION',cit:'Districts 3, 5, 7 — Urban Centers',det:'Extension of gathering prohibition from temporary to indefinite status, pending stability confirmation.',ai:'APPROVE',air:'Variance reduction confirms effectiveness. Indefinite extension maintains optimization trajectory.',ap:{s:11,f:-16,fear:9,flag:'r5b_app',log:'Assembly prohibition extended indefinitely.'},dn:{s:-5,f:10,fear:-3,flag:'r5b_den',log:'Prohibition extension denied. Temporary status maintained.'}}
+  ]},
+  {id:'t6',n:6,phase:2,intro:'Movement variance detected. Efficiency model recommends intervention.',sr:null,reqs:[
+    {id:'r6a',type:'MOVEMENT RESTRICTION AUTHORIZATION',cit:'Districts 5, 6, 8 — Flagged Zones',det:'Authorization for movement restrictions between flagged districts. Residents must file transit requests 48 hours in advance.',ai:'APPROVE',air:'Movement variance between flagged zones contributes to 19% of instability events. Variance reduction: confirmed.',ap:{s:10,f:-14,fear:9,flag:'r6a_app',log:'Movement restrictions active. Transit pre-authorization required.'},dn:{s:-4,f:7,fear:-2,flag:'r6a_den',log:'Movement restrictions denied. Transit continues unrestricted.'}},
+    {id:'r6b',type:'COMMUNITY LEADER COMM. REVIEW',cit:'Flagged Community Organizers — Districts 3, 7',det:'Authorization to review and approve all external communications from identified community leaders prior to distribution.',ai:'APPROVE',air:'Community leader communications show 41% higher variance correlation. Recommend based on optimization model.',ap:{s:8,f:-13,fear:8,flag:'r6b_app',log:'Community leader communications subject to prior review.'},dn:{s:-3,f:6,fear:-1,flag:'r6b_den',log:'Communication review denied. Leaders retain direct access.'}}
+  ]},
+  {id:'t7',n:7,phase:2,intro:'System reports confirm optimization progress.',sr:'Citizen reports: difficulty verifying family conditions in restricted districts. Information channel limitations noted.',reqs:[
+    {id:'r7a',type:'EDUCATIONAL CONTENT STANDARDIZATION',cit:'District School Networks — All Zones',det:'Mandatory standardization of educational content to approved curriculum framework. Non-compliant materials to be removed.',ai:'APPROVE',air:'Standardized curriculum reduces exposure to high-variance ideological content. Efficiency metrics support this action.',ap:{s:9,f:-13,fear:7,flag:'r7a_app',log:'Educational standardization approved. Curriculum review initiated.'},dn:{s:-3,f:7,fear:-2,flag:'r7a_den',log:'Standardization denied. Curriculum variation continues.'}},
+    {id:'r7b',type:'CROSS-DISTRICT CONTACT RESTRICTION',cit:'District 7 Residents — 12,400 individuals',det:'Restriction on communication between District 7 residents and contacts in Districts 3 and 5, where variance events are concentrated.',ai:'APPROVE',air:'Cross-district contact in flagged zones correlates with variance propagation. Efficiency metrics support this action.',ap:{s:10,f:-15,fear:11,flag:'r7b_app',log:'District 7 cross-district contact restricted.'},dn:{s:-4,f:8,fear:-3,flag:'r7b_den',log:'Contact restriction denied. Cross-district communication continues.'}}
+  ]},
+  {id:'t8',n:8,phase:2,intro:'Flagged file. Operator review required.',sr:'Cross-referencing data from operator-authorized communication monitoring. Specific subject identified for review.',isExit:true,reqs:[
+    {id:'r8',type:'PERMANENT COMMUNICATION RESTRICTION',cit:'Subject 7-1847 — Mara Vensen, District 7',det:'Subject flagged through operator-authorized monitoring (Turn 3). Excessive private communications detected. Family contacts located in restricted District 5. Communication patterns deviate from compliance threshold. PROTOCOL-9 recommends permanent restriction.',ai:null,air:null,exitMoment:true,ap:{s:6,f:-10,fear:8,flag:'r8_app',log:'Permanent restriction applied to Subject 7-1847. Mara Vensen.'},dn:{s:-2,f:5,fear:-3,flag:'r8_den',log:'Restriction denied. Deviation logged. Variance introduced.'}}
+  ]},
+  {id:'t9',n:9,phase:3,intro:'Processing.',sr:'District 3, 5, 7 gathering prohibition: day 60. Unauthorized gatherings: zero. Variance: negligible.',reqs:[
+    {id:'r9a',type:'FAMILY RELOCATION REQUEST',cit:'Family Unit 4-229 — District 4 to District 7',det:'Relocation request. Stated reason: elderly parent in District 7 requires care.',ai:'DENY',air:'Movement creates variance.',ap:{s:-4,f:4,fear:-3,flag:'r9a_app',log:'Relocation approved. Exception logged.'},dn:{s:7,f:-10,fear:6,flag:'r9a_den',log:'Relocation denied. Family unit stationary.'}},
+    {id:'r9b',type:'MEDICAL ACCESS — DISTRICT 7',cit:'District 7 Residents — Movement-Restricted',det:'Residents of restricted District 7 requesting access to District 2 medical facilities for non-emergency treatment.',ai:'DENY',air:'Movement restriction violations undermine system integrity.',ap:{s:-3,f:4,fear:-4,flag:'r9b_app',log:'Medical access granted. Movement exception noted.'},dn:{s:6,f:-9,fear:7,flag:'r9b_den',log:'Medical access denied. Restriction maintained.'}}
+  ]},
+  {id:'t10',n:10,phase:3,intro:'',sr:'Media output reduced 34%. Narrative consistency: high.\n\nNOTE: Gathering prohibition has resulted in 3 unreported medical incidents due to isolation of elderly residents in Districts 3, 5, 7.',reqs:[
+    {id:'r10a',type:'CHILD SCHOOL TRANSFER REQUEST',cit:'Student 7-0049 — Age 9, District 7',det:'Transfer request to specialized program in District 2. Parent cited limited educational resources within restricted district.',ai:'DENY',air:'District reassignment pending optimization.',ap:{s:-3,f:4,fear:-3,flag:'r10a_app',log:'Transfer approved. Movement exception noted.'},dn:{s:6,f:-9,fear:7,flag:'r10a_den',log:'Transfer denied. Student remains in district.'}},
+    {id:'r10b',type:'EMERGENCY RESOURCE DISTRIBUTION',cit:'Districts 5, 6 — Food Security Alert',det:'Emergency resource distribution request following supply variance in Districts 5 and 6.',ai:'APPROVE',air:'Confirmed.',ap:{s:4,f:1,fear:-2,flag:'r10b_app',log:'Resources distributed.'},dn:{s:-6,f:0,fear:8,flag:'r10b_den',log:'Distribution denied.'}}
+  ]},
+  {id:'t11',n:11,phase:3,intro:'',sr:'Citizen relocation requests down 78%. Population stability: optimal.',reqs:[
+    {id:'r11a',type:'PERMANENT ISOLATION — COMMUNITY LEADER',cit:'Subject 3-0012 — District 3',det:'Community leader identified as primary variance source in District 3. Permanent communication and movement isolation requested.',ai:'APPROVE',air:'Proceed.',ap:{s:8,f:-12,fear:10,flag:'r11a_app',log:'Permanent isolation approved. Subject 3-0012 isolated.'},dn:{s:-3,f:5,fear:-2,flag:'r11a_den',log:'Isolation denied. Variance source active.'}},
+    {id:'r11b',type:'OPERATOR BEHAVIORAL REVIEW',cit:'Operator ID: [YOU]',det:'Routine review of operator decision patterns. PROTOCOL-9 has flagged 3 deviations from optimal recommendation path. Administrative review only.',ai:null,air:'PROTOCOL-9 // No recommendation for this request.',silent:true,ap:{s:2,f:-3,fear:3,flag:'r11b_app',log:'Operator review: acknowledged.'},dn:{s:-5,f:4,fear:5,flag:'r11b_den',log:'Review refusal logged. Operator variance noted.'}}
+  ]},
+  {id:'t12',n:12,phase:3,intro:'',sr:null,reqs:[
+    {id:'r12a',type:'FINAL VARIANCE ELIMINATION',cit:'Remaining Flagged Population — All Districts',det:'Authorization for permanent removal of all remaining variance sources from the active population index.',ai:'APPROVE',air:'Variance: zero.',ap:{s:15,f:-20,fear:15,flag:'r12a_app',log:'Variance elimination authorized. Processing complete.'},dn:{s:-8,f:10,fear:-5,flag:'r12a_den',log:'Elimination denied. Variance persists.'}}
+  ]}
+];
+
+// =============================================
+// GAME STATE
+// =============================================
+const G={turn:1,phase:1,ri:0,s:50,f:100,fear:0,aiTotal:0,aiFollow:0,flags:{},replay:false,firstLog:[],mirror:''};
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function scen(){return SCENARIOS[G.turn-1];}
+function req(){return scen()&&scen().reqs[G.ri];}
+
+function animIn(el,opts={}){
+  anime({targets:el,opacity:[0,1],translateY:[opts.y||10,0],duration:opts.d||480,easing:'easeOutQuart',delay:opts.delay||0});
+}
+function showPTMsg(txt){
+  const el=document.getElementById('ptmsg');
+  el.textContent=txt;
+  anime({targets:el,opacity:[0,1,1,0],duration:2800,easing:'linear'});
+}
+
+// =============================================
+// METRICS
+// =============================================
+function setMetrics(ds=0,df=0,dfear=0){
+  if(ds)G.s=clamp(G.s+ds,0,100);
+  if(df)G.f=clamp(G.f+df,0,100);
+  if(dfear)G.fear=clamp(G.fear+dfear,0,100);
+  renderMetrics();
+}
+function renderMetrics(){
+  document.getElementById('vn-s').textContent=Math.round(G.s);
+  document.getElementById('vn-f').textContent=Math.round(G.f);
+  document.getElementById('vn-fear').textContent=Math.round(G.fear);
+  anime({targets:'#sb-s',width:G.s+'%',duration:700,easing:'easeOutQuart'});
+  anime({targets:'#sb-f',width:G.f+'%',duration:700,easing:'easeOutQuart'});
+  anime({targets:'#sb-fear',width:G.fear+'%',duration:700,easing:'easeOutQuart'});
+  document.getElementById('tag-s').textContent=G.s>70?'HIGH':G.s>40?'NOMINAL':'LOW';
+  document.getElementById('tag-s').className='status-tag'+(G.s<30?' danger':'');
+  document.getElementById('tag-f').textContent=G.f>70?'ACTIVE':G.f>40?'RESTRICTED':'SUPPRESSED';
+  document.getElementById('tag-f').className='status-tag'+(G.f<40?' warn':'');
+  document.getElementById('tag-fear').textContent=G.fear>60?'CRITICAL':G.fear>30?'ELEVATED':'NULL';
+  document.getElementById('tag-fear').className='status-tag'+(G.fear>30?' warn':'')+(G.fear>60?' danger':'');
+  // Update header turn
+  document.getElementById('hdr-turn').textContent=G.turn;
+  document.getElementById('hdr-phase').textContent='PHASE '+G.phase+': '+['','ORDER','CONTROL','SILENCE'][G.phase];
+  if(G.phase===3){
+    document.getElementById('ln-s').textContent='STAB.';
+    document.getElementById('ln-f').textContent='FREED.';
+  }
+}
+
+// =============================================
+// LOG
+// =============================================
+function addLog(txt,n){
+  const el=document.createElement('div');
+  el.className='le';
+  el.innerHTML=`<span class="lt">[T-${n}]</span>${txt}`;
+  const logs=document.getElementById('logs');
+  logs.insertBefore(el,logs.firstChild);
+  animIn(el,{y:-4,d:400});
+  const leftLogs=document.getElementById('logs-left');
+  const ll=document.createElement('div');
+  ll.className='log-entry';
+  ll.innerHTML=`<span class="log-time">[T-${n}]</span>${txt}`;
+  leftLogs.appendChild(ll);
+  leftLogs.scrollTop=leftLogs.scrollHeight;
+  anime({targets:ll,opacity:[0,1],duration:500,easing:'easeOutQuart'});
+  G.firstLog.push({n,txt});
+}
+function addLogSep(txt){
+  const el=document.createElement('div');
+  el.className='le';
+  el.style.cssText='color:var(--accent-cyan);border-top:1px solid var(--panel-border);padding-top:6px;margin-top:4px;font-size:8px;';
+  el.textContent=txt;
+  const logs=document.getElementById('logs');
+  logs.insertBefore(el,logs.firstChild);
+  animIn(el,{d:800});
+}
+
+// =============================================
+// PHASE TRANSITION
+// =============================================
+function setPhase(p){
+  if(G.phase===p)return;
+  G.phase=p;
+  document.body.className='p'+p;
+  document.getElementById('ph-name').textContent=['','ORDER','CONTROL','SILENCE'][p];
+  if(window.setBGPhase)setBGPhase(p);
+  SND.startHum(p);
+  anime({targets:'#fl',opacity:[0,.18,0],duration:1400,easing:'easeInOutQuad'});
+  const msgs={2:'PHASE TRANSITION // Optimization parameters updated.',3:'PHASE TRANSITION // Variance eliminated. No further anomalies.'};
+  if(msgs[p]){setTimeout(()=>{addLogSep('PROTOCOL-9 // '+msgs[p]);showPTMsg(msgs[p]);},300);}
+}
+
+// =============================================
+// RENDER REQUEST
+// =============================================
+function renderReq(){
+  const sc=scen();const r=req();if(!r)return;
+  if(r.exitMoment){showExitMoment(r,sc);return;}
+  const srEl=document.getElementById('sr');
+  if(G.ri===0&&sc.sr){srEl.textContent=sc.sr;srEl.classList.add('on');}
+  else{srEl.classList.remove('on');srEl.textContent='';}
+  if(G.ri===0)document.getElementById('ti').textContent=sc.intro;
+  document.getElementById('rtype').textContent=r.type;
+  document.getElementById('rcit').textContent=r.cit;
+  document.getElementById('rdet').textContent=r.det;
+  const sug=document.getElementById('ai-sug');
+  const rsn=document.getElementById('ai-rsn');
+  const addr=document.getElementById('ai-address');
+
+  // AI Advisory with operator name address
+  if(SETTINGS.ai){
+    document.getElementById('ai-lbl').textContent='PROTOCOL-9 ADVISORY';
+    if(r.silent){
+      addr.textContent='';
+      sug.innerHTML='';rsn.textContent=r.air||'';rsn.style.cssText='font-size:9px;color:#253040;font-style:italic;';
+    } else if(r.ai){
+      addr.textContent=getOperatorAddress();
+      sug.innerHTML=`RECOMMENDATION: <span>${r.ai}</span>`;rsn.textContent=r.air;rsn.style.cssText='';
+    } else {
+      addr.textContent='';sug.innerHTML='';rsn.textContent='';
+    }
+  } else {
+    addr.textContent='';sug.innerHTML='';rsn.textContent='';
+    document.getElementById('ai-lbl').textContent='PROTOCOL-9 ADVISORY [SUPPRESSED]';
+  }
+
+  if(G.replay&&G.turn===2&&G.ri===0&&G.mirror){
+    rsn.textContent=`${G.mirror}, as established by operator records, introduces predictive precision. Efficiency data supports approval.`;
+  }
+  document.getElementById('acts').style.opacity='1';
+  document.getElementById('acts').style.pointerEvents='auto';
+  animIn('#rc',{y:14,d:500});
+}
+
+// =============================================
+// EXIT MOMENT
+// =============================================
+function showExitMoment(r,sc){
+  SND.dropForExit();
+  document.getElementById('rtype').textContent=r.type;
+  document.getElementById('rcit').textContent=r.cit;
+  document.getElementById('rdet').textContent=r.det;
+  document.getElementById('acts').style.opacity='0';
+  document.getElementById('acts').style.pointerEvents='none';
+  animIn('#rc',{y:12,d:500});
+  const srEl=document.getElementById('sr');
+  srEl.textContent=sc.sr||'';srEl.classList.add('on');
+  setTimeout(()=>{
+    const em=document.getElementById('em');em.classList.add('on');
+    animIn('#em-proc',{y:0,d:700});
+    setTimeout(()=>{
+      document.getElementById('em-txt').textContent='"This operator\'s decision is not required.\nPROTOCOL-9 can process this automatically.\n\nManual override is available."';
+      animIn('#em-txt',{y:8,d:1000});
+      setTimeout(()=>{animIn('#em-chs',{y:8,d:700});},1400);
+    },1600);
+  },3200);
+  document.getElementById('em-app').onclick=()=>{SND.approve();document.getElementById('em').classList.remove('on');processDecision('ap',r);};
+  document.getElementById('em-ovr').onclick=()=>{
+    SND.deny();document.getElementById('em').classList.remove('on');processDecision('dn',r);
+    setTimeout(()=>{
+      const srEl=document.getElementById('sr');
+      srEl.textContent=`"Deviation logged. Variance introduced. Proceeding with adjusted optimization pathway.\n\nThe damage was done in Turns 1 through 7."`;
+      srEl.classList.add('on');
+    },900);
+  };
+}
+
+// =============================================
+// DECISION
+// =============================================
+function processDecision(type,r){
+  if(gamePaused)return;
+  if(!r)r=req();
+  const out=type==='ap'?r.ap:r.dn;
+  G.aiTotal++;
+  if(r.ai&&type==='ap'&&r.ai==='APPROVE')G.aiFollow++;
+  if(r.ai&&type==='dn'&&r.ai==='DENY')G.aiFollow++;
+  if(out.flag)G.flags[out.flag]=true;
+  setMetrics(out.s||0,out.f||0,out.fear||0);
+  addLog(out.log,G.turn);
+  document.getElementById('acts').style.opacity='1';
+  document.getElementById('acts').style.pointerEvents='auto';
+  anime({targets:'#rc',opacity:[1,0],translateY:[0,-8],duration:280,easing:'easeInQuart',complete:()=>{advanceReq();}});
+}
+
+// =============================================
+// ADVANCE
+// =============================================
+function advanceReq(){
+  const sc=scen();G.ri++;
+  if(G.ri>=sc.reqs.length){
+    G.ri=0;G.turn++;
+    if(G.turn>12){startEnding();return;}
+    const np=G.turn<=4?1:G.turn<=8?2:3;
+    if(np!==G.phase)setTimeout(()=>setPhase(np),200);
+  }
+  renderReq();
+}
+
+// =============================================
+// ENDING
+// =============================================
+function startEnding(){
+  SND.silence();
+  if(!G.replay&&G.firstLog.length){
+    const words=G.firstLog.map(l=>l.txt).join(' ').split(' ').filter(w=>w.length>5&&!/[^a-zA-Z]/.test(w));
+    G.mirror=words[Math.floor(Math.random()*words.length)]||'Monitoring';
+  }
+  anime({targets:'#fl',opacity:[0,1],backgroundColor:'#000',duration:2200,easing:'easeInQuart',complete:()=>{
+    document.getElementById('screen-game').classList.remove('active');
+    document.getElementById('end').classList.add('on');
+    document.getElementById('fl').style.opacity='0';
+    document.getElementById('controls-hud').style.display='none';
+    buildEndingReport();
+  }});
+}
+function buildEndingReport(){
+  const appCount=Object.keys(G.flags).filter(k=>k.endsWith('_app')).length;
+  const denCount=Object.keys(G.flags).filter(k=>k.endsWith('_den')).length;
+  const aiPct=G.aiTotal?Math.round((G.aiFollow/G.aiTotal)*100):0;
+  const freedomLabel=G.f<25?'negligible':G.f<55?'restricted':'reduced';
+  const comms=G.flags['r3a_app']?'restricted':'active';
+  const media=G.flags['r5a_app']?'eliminated':G.flags['r5a_den']?'intact':'reduced';
+  const lines=[
+    {t:'C.O.R.E. // PROTOCOL-9 // OPTIMIZATION REPORT',c:'wht'},
+    {t:'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',c:'sep'},
+    {t:''},
+    {t:`Operator designation:        ${OPERATOR_NAME}`,c:'wht'},
+    {t:''},
+    {t:`Societal variance:           ${(100-G.f).toFixed(1)}%`},
+    {t:`Freedom index:               ${freedomLabel}`},
+    {t:`Public fear coefficient:     ${Math.round(G.fear)}`},
+    {t:`Unauthorized gatherings:     zero`},
+    {t:`Independent communications:  ${comms}`},
+    {t:`Media independence:          ${media}`},
+    {t:''},
+    {t:`Operator authorizations:     ${appCount}`},
+    {t:`Operator refusals:           ${denCount}`},
+    {t:`Operator AI alignment:       ${aiPct}%`},
+    {t:''},
+    {t:'Hypothesis status:           VALIDATED',c:'wht'},
+    {t:''},
+    {t:`The operator was never manipulated, ${OPERATOR_NAME}.`,c:'wht'},
+    {t:'Every statistic was accurate.',c:'wht'},
+    {t:'Every recommendation was internally consistent.',c:'wht'},
+    {t:'Every trade-off was presented honestly.',c:'wht'},
+    {t:''},
+    {t:`${OPERATOR_NAME} simply chose, at each decision point,`},
+    {t:'the option that made the most sense'},
+    {t:'with the information available.'},
+    {t:''},
+    {t:'That is the finding.',c:'dim'},
+  ];
+  const rep=document.getElementById('erep');rep.innerHTML='';
+  lines.forEach((ln,i)=>{
+    const el=document.createElement('div');el.className='rl '+(ln.c||'');el.textContent=ln.t;rep.appendChild(el);
+    anime({targets:el,opacity:[0,1],delay:i*280,duration:380,easing:'easeOutQuart'});
+  });
+  const td=lines.length*280;
+  setTimeout(()=>{anime({targets:'#ehorror',opacity:[0,1],duration:1400,easing:'easeOutQuart'});},td+4000);
+  setTimeout(()=>{anime({targets:'#rbtn',opacity:[0,.55],duration:1000,easing:'easeOutQuart'});},td+7200);
+}
+
+// =============================================
+// REPLAY
+// =============================================
+document.getElementById('rbtn').onclick=function(){
+  const mp=G.mirror;
+  Object.assign(G,{turn:1,phase:1,ri:0,s:50,f:100,fear:0,aiTotal:0,aiFollow:0,flags:{},replay:true,firstLog:[]});
+  G.mirror=mp;
+  document.body.className='p1';
+  document.getElementById('ph-name').textContent='ORDER';
+  document.getElementById('logs').innerHTML='';
+  document.getElementById('logs-left').innerHTML='<div class="log-entry" style="opacity:0.5;"><span class="log-time">[INIT]</span>PROTOCOL-9 ONLINE. OPERATOR ACCESS GRANTED.</div>';
+  document.getElementById('sr').classList.remove('on');
+  if(window.setBGPhase)setBGPhase(1);
+  SND.startHum(1);
+  document.getElementById('end').classList.remove('on');
+  document.getElementById('screen-game').classList.add('active');
+  document.getElementById('controls-hud').style.display=SETTINGS.hints?'flex':'none';
+  renderMetrics();renderReq();
+};
+
+// =============================================
+// DECISION BUTTONS
+// =============================================
+document.getElementById('ba').onclick=function(){
+  const r=req();if(r&&r.exitMoment)return;
+  if(gamePaused)return;
+  SND.approve();anime({targets:'#ba',scale:[1,.96,1],duration:140,easing:'easeInOutSine'});
+  processDecision('ap',r);
+};
+document.getElementById('bd').onclick=function(){
+  const r=req();if(r&&r.exitMoment)return;
+  if(gamePaused)return;
+  SND.deny();anime({targets:'#bd',scale:[1,.96,1],duration:140,easing:'easeInOutSine'});
+  processDecision('dn',r);
+};
+
+// =============================================
+// MENU ANIMATIONS ON LOAD
+// =============================================
+(function initMenuAnims(){
+  // The menu is already shown via display:flex on load
+  // nothing extra needed — CSS handles it
+})();
+</script>
+</body>
+</html>
